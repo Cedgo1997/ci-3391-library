@@ -12,41 +12,13 @@ import { CommonModule } from '@angular/common';
 })
 export class DynamicFormComponent {
   @Input() title: string = '';
-  fields: Field[] = [
-    {
-      type: 'text',
-      label: 'Nombre',
-      name: 'nombre',
-      value: '',
-      required: true
-    },
-    {
-      type: 'email',
-      label: 'Correo electrónico',
-      name: 'email',
-      value: '',
-      required: true
-    },
-    {
-      type: 'select',
-      label: 'Género',
-      name: 'genero',
-      value: '',
-      required: true,
-      options: ['Masculino', 'Femenino', 'Helicóptero Apache']
-    },
-    {
-      type: 'checkbox',
-      label: 'Acepto términos y condiciones',
-      name: 'terminos',
-      value: false,
-      required: true
-    }
+  @Input() fields: Field[] = [
   ];
 
   onSubmit(form: NgForm) {
     if (form.valid) {
       console.log('Formulario enviado:', form.value);
+      form.reset();
     }
   }
 
