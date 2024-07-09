@@ -1,4 +1,5 @@
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+    <h2>{{ title | uppercase }}</h2>
     @for (field of fields; track field.label) {
         <div class="field">
           <label>{{ field.label }}</label>

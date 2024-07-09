@@ -1,15 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Field } from '../../interfaces/field.interface';
 import { FormsModule, NgForm } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './dynamic-form.component.html',
   styleUrl: './dynamic-form.component.scss'
 })
 export class DynamicFormComponent {
+  @Input() title: string = '';
   fields: Field[] = [
     {
       type: 'text',
@@ -31,7 +33,7 @@ export class DynamicFormComponent {
       name: 'genero',
       value: '',
       required: true,
-      options: ['Masculino', 'Femenino', 'Otro']
+      options: ['Masculino', 'Femenino', 'Helicóptero Apache']
     },
     {
       type: 'checkbox',
@@ -54,5 +56,5 @@ export class DynamicFormComponent {
 
   trackByIndex(index: number, item: any) {
     return index;
-}
+  }
 }
