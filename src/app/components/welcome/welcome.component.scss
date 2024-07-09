@@ -1,0 +1,45 @@
+/* src/app/welcome/welcome.component.scss */
+.welcome-container {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--color-text);
+  max-width: 800px;
+  margin: auto;
+}
+
+h1 {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 20px;
+
+  .highlight {
+    color: var(--color-secondary);
+  }
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+}
+
+p {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  color: var(--color-text);
+}
+
+.explore-button {
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: var(--color-secondary);
+  }
+}
