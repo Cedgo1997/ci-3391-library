@@ -1,0 +1,28 @@
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+    @for (field of fields; track field.label) {
+        <div class="field">
+          <label>{{ field.label }}</label>
+            @switch (field.type) {
+                @case('text') {
+                    <input type="text" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                }
+                @case('email') {
+                    <input type="email" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                }
+                @case('select') {
+                    <select [(ngModel)]="field.value" [name]="field.name" [required]="field.required">
+                      @for(option of field.options; track trackByIndex) {
+                          <option [value]="option">{{ option }}</option>
+                      }
+                    </select>
+                }
+                @case('checkbox') {
+                    <input type="checkbox" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                }
+            }
+        </div>
+    }
+    <button type="submit">Aceptar</button>
+    <button type="button" (click)="onCancel()">Cancelar</button>
+  </form>
+  
