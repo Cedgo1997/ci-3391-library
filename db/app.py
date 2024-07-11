@@ -1,6 +1,5 @@
 from flask import Flask, jsonify
 from flask import request
-import psycopg2
 from conexion_postgresql import connect_to_db
 
 app = Flask(__name__)
@@ -26,38 +25,22 @@ def usuario(cedula):
     connection.close()
     return jsonify(user)
 
-@app.route("/crear_usuario", methods=["POST"])
+@app.route("/usuarios_crear", methods=["POST"])
 def crear_usuario():
-    try:
-        connection = connect_to_db()
-        cursor = connection.cursor()
+    connection = connect_to_db()
+    cursor = connection.cursor()
 
-        # Obtener datos del cuerpo del request
-        data = request.json
-        cedula = data.get('in_cedula')
-        nombre = data.get('in_nombre')
-        apellido = data.get('in_apellido')
-        fecha_nacimiento = data.get('in_fecha_nacimiento')
-        correo = data.get('in_correo')
-        tipo_usuario = data.get('in_tipo_usuario')
-        id_donante = data.get('in_id_donante')
-
-        # Llamar al procedimiento almacenado
-        cursor.callproc('crear_usuario', (cedula, nombre, apellido, fecha_nacimiento, correo, tipo_usuario, id_donante))
-        connection.commit()
-
-        for result in cursor.fetchall():
-            print(result)
-
-        return jsonify({"message": "Usuario creado exitosamente"})
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
     
-    except psycopg2.DatabaseError as e:
-        print(e)
-        return jsonify({"error": "Error al crear usuario"}), 500
-    
-    finally:
-        cursor.close()
-        connection.close()
+    # llamada al procedimiento almacenado usando CALL
+    cursor.execute(f"CALL crear_usuario('{data['in_cedula']}', '{data['in_nombre']}', '{data['in_apellido']}', '{data['in_fecha_nacimiento']}', '{data['in_correo']}', '{data['in_tipo_usuario']}', null)")
+        
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Usuario creado exitosamente"})
 
 if __name__ == '__main__':
     app.run(port=3000,debug=True)

@@ -350,7 +350,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
 
-  IF NOT EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula) THEN
+  IF EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula) THEN
     RAISE EXCEPTION 'El usuario ya existe.';
   END IF;
 
@@ -927,4 +927,8 @@ BEGIN
         p.nombre, p.cedula
     ORDER BY 
         cantidad_libros_donados DESC;
+END $$;
+
+DO $$ BEGIN
+  CALL crear_usuario('27318323', 'pedro', 'vielma', '2000-01-01', 'vasd@gmas.com', 'lector', null);
 END $$;
