@@ -165,5 +165,26 @@ def generar_reporte_libros_mas_prestados():
     return json.dumps(result)
 
 
+@app.route("/filtrar_libros_por_categoria", methods=["POST"])
+def filtrar_libros_por_categoria():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL filtrar_libros_por_categoria('{data['in_categoria']}')"
+    )
+
+    result = cursor.fetchall()
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return json.dumps(result)
+
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
