@@ -73,7 +73,7 @@ def registrar_nuevo_libro():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
@@ -92,7 +92,7 @@ def vender_ejemplar():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
@@ -111,7 +111,7 @@ def donar_ejemplar():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
@@ -130,7 +130,7 @@ def registrar_asistencia_evento():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
@@ -149,7 +149,7 @@ def generar_reporte_libros_mas_prestados():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
@@ -170,7 +170,7 @@ def filtrar_libros_por_categoria():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
@@ -191,7 +191,7 @@ def consultar_libros_mas_vendidos():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
@@ -212,11 +212,32 @@ def consultar_mejores_compradores():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos del usuario desde el body del request
+    # Obtener los datos desde el body del request
     data = request.json
 
     cursor.execute(
         f"CALL consultar_mejores_compradores()"
+    )
+
+    result = cursor.fetchall()
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return json.dumps(result)
+
+
+@app.route("/consultar_bibliotecarios_que_organizan_mas_eventos", methods=["POST"])
+def consultar_bibliotecarios_que_organizan_mas_eventos():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL consultar_bibliotecarios_que_organizan_mas_eventos()"
     )
 
     result = cursor.fetchall()
