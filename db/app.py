@@ -48,6 +48,25 @@ def crear_usuario():
     return jsonify({"message": "Usuario creado exitosamente"})
 
 
+@app.route("/actualizar_informacion_usuario", methods=["POST"])
+def actualizar_informacion_usuario():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL actualizar_informacion_usuario('{data['in_cedula']}', '{data['in_nombre']}', '{data['in_apellido']}', '{data['in_fecha_nacimiento']}', '{data['in_correo']}', '{data['in_id_donante']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Información actualizada exitosamente"})
+
+
 @app.route("/registrar_nuevo_libro", methods=["POST"])
 def registrar_nuevo_libro():
     connection = connect_to_db()
