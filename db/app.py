@@ -86,5 +86,24 @@ def vender_ejemplar():
     return jsonify({"message": "Venta realizada"})
 
 
+@app.route("/donar_ejemplar", methods=["POST"])
+def donar_ejemplar():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL donar_ejemplar('{data['in_serial_ejemplar']}','{data['in_id_donante']}', '{data['in_fecha_donacion']}', '{data['in_nombre_sucursal']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Se ha registrado correctamente la donación"})
+
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
