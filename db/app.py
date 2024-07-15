@@ -207,5 +207,26 @@ def consultar_libros_mas_vendidos():
     return json.dumps(result)
 
 
+@app.route("/consultar_mejores_compradores", methods=["POST"])
+def consultar_mejores_compradores():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL consultar_mejores_compradores()"
+    )
+
+    result = cursor.fetchall()
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return json.dumps(result)
+
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
