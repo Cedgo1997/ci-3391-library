@@ -124,5 +124,24 @@ def donar_ejemplar():
     return jsonify({"message": "Se ha registrado correctamente la donación"})
 
 
+@app.route("/registrar_asistencia_evento", methods=["POST"])
+def registrar_asistencia_evento():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL registrar_asistencia_evento('{data['in_correo']}','{data['in_pk_evento']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Asistencia registrada exitosamente"})
+
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
