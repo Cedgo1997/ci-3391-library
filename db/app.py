@@ -67,5 +67,24 @@ def registrar_nuevo_libro():
     return jsonify({"message": "Libro registrado exitosamente"})
 
 
+@app.route("/vender_ejemplar", methods=["POST"])
+def vender_ejemplar():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_nro_facturacion']}', '{data['in_payment_method']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Venta realizada"})
+
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
