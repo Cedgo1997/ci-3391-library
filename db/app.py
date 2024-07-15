@@ -1,3 +1,4 @@
+import json
 from flask import Flask, jsonify
 from flask import request
 from conexion_postgresql import connect_to_db
@@ -141,6 +142,27 @@ def registrar_asistencia_evento():
     connection.close()
 
     return jsonify({"message": "Asistencia registrada exitosamente"})
+
+
+@app.route("/generar_reporte_libros_mas_prestados", methods=["POST"])
+def generar_reporte_libros_mas_prestados():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos del usuario desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL generar_reporte_libros_mas_prestados('{data['in_fecha_inicio']}','{data['in_fecha_final']}')"
+    )
+
+    result = cursor.fetchall()
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return json.dumps(result)
 
 
 if __name__ == '__main__':
