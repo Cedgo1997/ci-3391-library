@@ -2,9 +2,10 @@ import json
 from flask import Flask, jsonify
 from flask import request
 from conexion_postgresql import connect_to_db
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-
+CORS(app, support_credentials=True)
 # Conexion a la base de datos
 connect_to_db()
 
@@ -15,11 +16,13 @@ def root():
 
 
 @app.route("/usuarios")
+@cross_origin(supports_credentials=True)
 def usuarios():
-    return "usuarios"
+    return jsonify("Usuarios")
 
 
 @app.route("/usuarios/<string:cedula>")
+@cross_origin(supports_credentials=True)
 def usuario(cedula):
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -31,6 +34,7 @@ def usuario(cedula):
 
 
 @app.route("/usuarios_crear", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def crear_usuario():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -50,6 +54,7 @@ def crear_usuario():
 
 
 @app.route("/actualizar_informacion_usuario", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def actualizar_informacion_usuario():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -69,6 +74,7 @@ def actualizar_informacion_usuario():
 
 
 @app.route("/registrar_nuevo_libro", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def registrar_nuevo_libro():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -88,6 +94,7 @@ def registrar_nuevo_libro():
 
 
 @app.route("/vender_ejemplar", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def vender_ejemplar():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -107,6 +114,7 @@ def vender_ejemplar():
 
 
 @app.route("/donar_ejemplar", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def donar_ejemplar():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -126,6 +134,7 @@ def donar_ejemplar():
 
 
 @app.route("/registrar_asistencia_evento", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def registrar_asistencia_evento():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -145,6 +154,7 @@ def registrar_asistencia_evento():
 
 
 @app.route("/generar_reporte_libros_mas_prestados", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def generar_reporte_libros_mas_prestados():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -166,6 +176,7 @@ def generar_reporte_libros_mas_prestados():
 
 
 @app.route("/filtrar_libros_por_categoria", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def filtrar_libros_por_categoria():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -187,6 +198,7 @@ def filtrar_libros_por_categoria():
 
 
 @app.route("/consultar_libros_mas_vendidos", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def consultar_libros_mas_vendidos():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -208,6 +220,7 @@ def consultar_libros_mas_vendidos():
 
 
 @app.route("/consultar_mejores_compradores", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def consultar_mejores_compradores():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -229,6 +242,7 @@ def consultar_mejores_compradores():
 
 
 @app.route("/consultar_bibliotecarios_que_organizan_mas_eventos", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def consultar_bibliotecarios_que_organizan_mas_eventos():
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -250,6 +264,7 @@ def consultar_bibliotecarios_que_organizan_mas_eventos():
 
 
 @app.route("/consultar_personas_que_mas_donan_libros", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def consultar_personas_que_mas_donan_libros():
     connection = connect_to_db()
     cursor = connection.cursor()
