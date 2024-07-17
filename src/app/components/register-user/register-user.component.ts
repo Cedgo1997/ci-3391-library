@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import Swal from 'sweetalert2';
 import { UserService } from '../../services/user.service';
@@ -13,7 +13,7 @@ import { getCircularReplacer } from '../../helpers/circular-replacer';
   styleUrl: './register-user.component.scss'
 })
 export class RegisterUserComponent {
-  constructor(private userService: UserService) { }
+  userService = inject(UserService);
   fields = [
     {
       type: 'text',
