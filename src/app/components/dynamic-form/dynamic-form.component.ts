@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Field } from '../../interfaces/field.interface';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './dynamic-form.component.scss'
 })
 export class DynamicFormComponent {
+  @Output() sendFormData: EventEmitter<NgForm> = new EventEmitter<NgForm>();
   @Input() title: string = '';
   @Input() fields: Field[] = [
   ];
@@ -18,6 +19,7 @@ export class DynamicFormComponent {
   onSubmit(form: NgForm) {
     if (form.valid) {
       console.log('Formulario enviado:', form.value);
+      this.sendFormData.emit(form);
       form.reset();
     }
   }
@@ -26,7 +28,7 @@ export class DynamicFormComponent {
     console.log('Cancelaste');
   }
 
-  trackByIndex(index: number, item: any) {
-    return index;
+  trackByIndex(item: any) {
+    return item
   }
 }
