@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
-import { DynamicFormComponent } from "../dynamic-form/dynamic-form.component";
-import { NgForm } from '@angular/forms';
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import Swal from 'sweetalert2';
 import { UserService } from '../../services/user.service';
+import { DynamicFormComponent } from "../dynamic-form/dynamic-form.component";
+import { getCircularReplacer } from '../../helpers/circular-replacer';
 
 @Component({
   selector: 'app-register-user',
   standalone: true,
-  imports: [DynamicFormComponent],
+  imports: [DynamicFormComponent, SweetAlert2Module],
   templateUrl: './register-user.component.html',
   styleUrl: './register-user.component.scss'
 })
@@ -58,14 +60,30 @@ export class RegisterUserComponent {
     }
   ]
 
-  createUser(data: NgForm): void {
+  createUser(data: any): void {
     if (data) {
-      this.userService.createUser(data).subscribe((response) => {
-        console.info(response);
-      },
-        (error) => {
-          console.error(error);
-        })
+      this.userService.createUser(JSON.stringify({ ...data }, getCircularReplacer())).subscribe(
+        {
+          next: (response: { message: string }) => {
+            console.info(response);
+            Swal.fire({
+              title: '¡Creación exitosa!',
+              text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+              icon: 'success',
+              confirmButtonText: 'Aceptar'
+            })
+          },
+          error: (error) => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+            })
+            console.error(error);
+          }
+        }
+      )
     }
   }
 }

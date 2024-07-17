@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -11,7 +11,10 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   createUser(data: any): Observable<{ message: string }> {
-    return this.http.post<{message: string}>(`${this.URL}/usuarios_crear`, data)
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<{ message: string }>(`${this.URL}/usuarios_crear`, data, { headers, })
   }
 
   getAllUsers(): Observable<string> {
