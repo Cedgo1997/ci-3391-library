@@ -89,6 +89,7 @@ def actualizar_informacion_usuario():
 ############### PRESTAMOS ###########
 #####################################
 
+
 @app.route("/realizar_prestamo", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def realizar_prestamo():
@@ -107,6 +108,7 @@ def realizar_prestamo():
     connection.close()
 
     return jsonify({"message": "Prestamo realizado exitosamente"})
+
 
 @app.route("/realizar_devolucion", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -127,6 +129,20 @@ def realizar_devolucion():
 
     return jsonify({"message": "Devolución realizada exitosamente"})
 
+
+@app.route("/reseñas_sin_aprobar", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def reseñas_sin_aprobar():
+
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM Resena WHERE aprobado = false")
+    resenas = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return json.dumps(resenas)
+
+
 @app.route("/ingresar_resena", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def ingresar_resena():
@@ -137,14 +153,15 @@ def ingresar_resena():
     data = request.json
 
     cursor.execute(
-        f"CALL ingresar_resena('{data['in_cedula_bibliotecario']}', '{data['in_cedula_lector']}', '{data['in_estrellas']}', '{data['in_comentario']}', , '{data['in_isbn']}')"
+        f"CALL ingresar_resena('{data['in_cedula_lector']}', '{data['in_estrellas']}', '{data['in_comentario']}', , '{data['in_isbn']}')"
     )
 
     cursor.close()
     connection.commit()
     connection.close()
 
-    return jsonify({"message": "Reseña ingresada exitosamente"})
+    return jsonify({"message": "Reseña ingresada exitosamente, espere su revisión y aprobación"})
+
 
 @app.route("/aprobar_resena", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -180,6 +197,7 @@ def libros():
     cursor.close()
     connection.close()
     return json.dumps(libros, cls=Encoder)
+
 
 @app.route("/registrar_nuevo_libro", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -267,7 +285,7 @@ def filtrar_libros_por_categoria():
     connection.commit()
     connection.close()
 
-    return json.dumps(result, cls = Encoder)
+    return json.dumps(result, cls=Encoder)
 
 
 @app.route("/consultar_libros_mas_vendidos", methods=["GET"])
@@ -293,6 +311,7 @@ def consultar_libros_mas_vendidos():
         connection.commit()
         connection.close()
 
+
 @app.route("/consultar_sucursales", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def consultar_sucursales():
@@ -314,6 +333,7 @@ def consultar_sucursales():
         cursor.close()
         connection.commit()
         connection.close()
+
 
 @app.route("/consultar_editoriales", methods=["GET"])
 @cross_origin(supports_credentials=True)
@@ -463,6 +483,7 @@ def organizar_evento():
     connection.close()
 
     return jsonify({"message": "Evento organizado exitosamente"})
+
 
 @app.route("/consultar_eventos", methods=["GET"])
 @cross_origin(supports_credentials=True)

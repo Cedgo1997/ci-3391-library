@@ -344,8 +344,7 @@ CREATE OR REPLACE PROCEDURE crear_usuario(
   in_apellido VARCHAR(85),
   in_fecha_nacimiento DATE,
   in_correo VARCHAR(256),
-  in_tipo_usuario VARCHAR(10),
-  in_id_donante INT
+  in_tipo_usuario VARCHAR(10)
 )
 LANGUAGE plpgsql
 AS $$
@@ -360,20 +359,27 @@ BEGIN
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, in_id_donante);
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo);
 
-  IF in_tipo_usuario = 'bibliotecario' THEN
+  IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
     VALUES (in_cedula, in_correo);
-  ELSIF in_tipo_usuario = 'lector' THEN
+  ELSIF in_tipo_usuario = 'Lector' THEN
     INSERT INTO Lector(cedula)
     VALUES (in_cedula);
+  ELSEIF in_tipo_usuario = 'Autor' THEN
+    INSERT INTO Autor(cedula)
+    VALUES (in_cedula);
+  ELSEIF in_tipo_usuario = 'Empleado' THEN
+    INSERT INTO Empleado(cedula, cargo)
+    VALUES (in_cedula, 'Empleado');
   ELSE
     RAISE EXCEPTION 'El tipo de usuario no es valido.';
   END IF;
 
   RAISE NOTICE 'Usuario creado exitosamente.';
 END $$;
+
 
 CREATE OR REPLACE PROCEDURE realizar_prestamo(
   in_serial_ejemplar VARCHAR(10),
@@ -419,8 +425,8 @@ CREATE OR REPLACE PROCEDURE realizar_devolucion(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula_lector AND activo = TRUE) THEN
-        RAISE EXCEPTION 'El lector no esta activo.';
+  IF NOT EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula_lector) THEN
+        RAISE EXCEPTION 'El lector no esta registrado.';
   END IF;
 
   IF NOT EXISTS (
@@ -438,7 +444,6 @@ BEGIN
 END $$;
 
 CREATE OR REPLACE PROCEDURE ingresar_resena(
-  in_cedula_bibliotecario VARCHAR(12),
   in_cedula_lector VARCHAR(12),
   in_estrellas INT,
   in_comentario VARCHAR(256),
@@ -447,9 +452,6 @@ CREATE OR REPLACE PROCEDURE ingresar_resena(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM Bibliotecario WHERE cedula = in_cedula_bibliotecario) THEN
-    RAISE EXCEPTION 'El bibliotecario no existe.';
-  END IF;
 
   IF NOT EXISTS (SELECT 1 FROM Lector WHERE cedula = in_cedula_lector) THEN
     RAISE EXCEPTION 'El lector no existe.';
@@ -464,7 +466,7 @@ BEGIN
   END IF;
 
   INSERT INTO Resena(cedula_bibliotecario, cedula_lector, estrellas, comentario, isbn)
-  VALUES (in_cedula_bibliotecario, in_cedula_lector, in_estrellas, in_comentario, in_isbn);
+  VALUES (NULL, in_cedula_lector, in_estrellas, in_comentario, in_isbn);
 
   RAISE NOTICE 'Resena ingresada exitosamente.';
 END $$;
@@ -481,16 +483,12 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario no existe.';
   END IF;
 
-  IF NOT EXISTS (SELECT 1 FROM Resena WHERE cedula_bibliotecario = in_cedula_bibliotecario AND cedula_lector = in_cedula_lector AND isbn = in_isbn) THEN
-    RAISE EXCEPTION 'El bibliotecario no ingreso esta resena.';
-  END IF;
-
   IF NOT EXISTS (SELECT 1 FROM Resena WHERE cedula_lector = in_cedula_lector AND isbn = in_isbn) THEN
     RAISE EXCEPTION 'La resena no existe.';
   END IF;
 
   UPDATE Resena
-  SET aprobado = TRUE
+  SET aprobado = TRUE, cedula_bibliotecario = in_cedula_bibliotecario
   WHERE cedula_lector = in_cedula_lector AND isbn = in_isbn;
 
   RAISE NOTICE 'Resena aprobada exitosamente.';
