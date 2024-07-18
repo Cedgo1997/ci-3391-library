@@ -7,7 +7,7 @@
     id=""
     maxlength="200"
     rows="1"
-    (selectionchange)="triggerSearch($event)"
+    (input)="triggerSearch($event)"
   ></textarea>
   } @if(enableCategorySearch) {
   <select (change)="triggerSelection($event)">

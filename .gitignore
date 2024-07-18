@@ -44,3 +44,4 @@ Thumbs.db
 
 /db/conexion_postgresql.py
 /db/__pycache__/
+/db/helper/__pycache__

@@ -43,6 +43,18 @@ def usuario(cedula):
     return jsonify(user)
 
 
+@app.route("/usuarios_tipo/<string:tipo_usuario>")
+@cross_origin(supports_credentials=True)
+def usuarios_tipo(tipo_usuario):
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM '{tipo_usuario}'")
+    users = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(users)
+
+
 @app.route("/usuarios_crear", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def crear_usuario():
@@ -153,7 +165,7 @@ def ingresar_resena():
     data = request.json
 
     cursor.execute(
-        f"CALL ingresar_resena('{data['in_cedula_lector']}', '{data['in_estrellas']}', '{data['in_comentario']}', , '{data['in_isbn']}')"
+        f"CALL ingresar_resena('{data['in_cedula_lector']}', '{data['in_estrellas']}', '{data['in_comentario']}', '{data['in_isbn']}')"
     )
 
     cursor.close()
@@ -180,7 +192,47 @@ def aprobar_resena():
     connection.commit()
     connection.close()
 
-    return jsonify({"message": "Reseña aprobada exitosamente"})
+    return jsonify({"message": "Reseña aprobada."})
+
+
+@app.route("/reseñas", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def reseñas():
+
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Está filtrado por aprobado, bibliotecario y lector
+    if len(request.args) == 3:
+        cursor.execute(
+            f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_bibliotecario = {request.args['cedula_bibliotecario']} AND cedula_lector = {request.args['cedula_lector']}")
+    elif len(request.args) == 2:
+        if "aprobado" in request.args and "cedula_bibliotecario" in request.args:
+            cursor.execute(
+                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_bibliotecario = {request.args['cedula_bibliotecario']}")
+        elif "aprobado" in request.args and "cedula_lector" in request.args:
+            cursor.execute(
+                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_lector = {request.args['cedula_lector']}")
+        elif "cedula_bibliotecario" in request.args and "cedula_lector" in request.args:
+            cursor.execute(
+                f"SELECT * FROM Resena WHERE cedula_bibliotecario = {request.args['cedula_bibliotecario']} AND cedula_lector = {request.args['cedula_lector']}")
+    elif len(request.args) == 1:
+        if "aprobado" in request.args:
+            cursor.execute(
+                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']}")
+        elif "cedula_bibliotecario" in request.args:
+            cursor.execute(
+                f"SELECT * FROM Resena WHERE cedula_bibliotecario = {request.args['cedula_bibliotecario']}")
+        elif "cedula_lector" in request.args:
+            cursor.execute(
+                f"SELECT * FROM Resena WHERE cedula_lector = {request.args['cedula_lector']}")
+
+    else:
+        cursor.execute(f"SELECT * FROM Resena")
+    resenas = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return json.dumps(resenas)
 
 #####################################
 ############### LIBROS ##############
@@ -385,7 +437,7 @@ def vender_ejemplar():
     data = request.json
 
     cursor.execute(
-        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_nro_facturacion']}', '{data['in_payment_method']}')"
+        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_payment_method']}')"
     )
 
     cursor.close()

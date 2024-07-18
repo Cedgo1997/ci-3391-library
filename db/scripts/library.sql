@@ -359,7 +359,7 @@ BEGIN
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo);
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
 
   IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
@@ -503,6 +503,8 @@ CREATE OR REPLACE PROCEDURE organizar_evento(
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+  var_pk_evento INT;
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM Bibliotecario WHERE cedula = in_cedula_bibliotecario) THEN
     RAISE EXCEPTION 'El bibliotecario no existe.';
@@ -539,12 +541,13 @@ BEGIN
 
   INSERT INTO Evento(fecha_inicio, fecha_final, nombre_sucursal)
   VALUES (in_nombre_evento, in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
+  RETURNING pk_evento INTO var_pk_evento;
 
   INSERT INTO Organiza(cedula, fecha_inicio, fecha_final, pk_evento)
-  VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, (SELECT pk_evento FROM Evento WHERE fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final));
+  VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, var_pk_evento;)
 
   INSERT INTO Realiza(nombre, pk_evento)
-  VALUES (in_nombre_sucursal, (SELECT pk_evento FROM Evento WHERE fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final));
+  VALUES (in_nombre_sucursal, var_pk_evento);
 
   RAISE NOTICE 'Evento organizado exitosamente';
 
