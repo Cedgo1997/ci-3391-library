@@ -483,16 +483,12 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario no existe.';
   END IF;
 
-  IF NOT EXISTS (SELECT 1 FROM Resena WHERE cedula_bibliotecario = in_cedula_bibliotecario AND cedula_lector = in_cedula_lector AND isbn = in_isbn) THEN
-    RAISE EXCEPTION 'El bibliotecario no ingreso esta resena.';
-  END IF;
-
   IF NOT EXISTS (SELECT 1 FROM Resena WHERE cedula_lector = in_cedula_lector AND isbn = in_isbn) THEN
     RAISE EXCEPTION 'La resena no existe.';
   END IF;
 
   UPDATE Resena
-  SET aprobado = TRUE
+  SET aprobado = TRUE, cedula_bibliotecario = in_cedula_bibliotecario
   WHERE cedula_lector = in_cedula_lector AND isbn = in_isbn;
 
   RAISE NOTICE 'Resena aprobada exitosamente.';
