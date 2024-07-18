@@ -9,7 +9,6 @@ CORS(app, support_credentials=True)
 # Conexion a la base de datos
 connect_to_db()
 
-
 @app.route("/")
 def root():
     return "Hello World!"
@@ -41,10 +40,13 @@ def crear_usuario():
 
     # Obtener los datos del usuario desde el body del request
     data = request.json
+    
+    print("Data recibida:")
+    print(data)
 
     # llamada al procedimiento almacenado usando CALL
     cursor.execute(
-        f"CALL crear_usuario('{data['in_cedula']}', '{data['in_nombre']}', '{data['in_apellido']}', '{data['in_fecha_nacimiento']}', '{data['in_correo']}', '{data['in_tipo_usuario']}', null)")
+        f"CALL crear_usuario('{data['in_cedula']}', '{data['in_nombre']}', '{data['in_apellido']}', '{data['in_fecha_nacimiento']}', '{data['in_correo']}', '{data['in_tipo_usuario']}')")
 
     cursor.close()
     connection.commit()

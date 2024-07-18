@@ -343,8 +343,7 @@ CREATE OR REPLACE PROCEDURE crear_usuario(
   in_apellido VARCHAR(85),
   in_fecha_nacimiento DATE,
   in_correo VARCHAR(256),
-  in_tipo_usuario VARCHAR(10),
-  in_id_donante INT
+  in_tipo_usuario VARCHAR(10)
 )
 LANGUAGE plpgsql
 AS $$
@@ -359,7 +358,7 @@ BEGIN
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, in_id_donante);
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
 
   IF in_tipo_usuario = 'bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
