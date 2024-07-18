@@ -598,7 +598,7 @@ BEGIN
   INSERT INTO Libro(isbn, titulo, precio, edicion, fecha_publicacion, restriccion_edad, nombre_sucursal, nombre_editorial)
   VALUES (in_isbn, in_titulo, in_precio, in_edicion, in_fecha_publicacion, in_restriccion_edad, in_nombre_sucursal, in_nombre_editorial);
 
-  INSERT INTO Escribe(cedula_autor isb)
+  INSERT INTO Escribe(cedula_autor, isbn)
   VALUES (in_autor, in_isbn);
     
   RAISE NOTICE 'Libro registrado exitosamente.';
