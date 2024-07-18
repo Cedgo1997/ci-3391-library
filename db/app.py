@@ -22,7 +22,13 @@ def root():
 @app.route("/usuarios")
 @cross_origin(supports_credentials=True)
 def usuarios():
-    return jsonify("Usuarios")
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT cedula, nombre, apellido FROM Persona")
+    users = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(users)
 
 
 @app.route("/usuarios/<string:cedula>")

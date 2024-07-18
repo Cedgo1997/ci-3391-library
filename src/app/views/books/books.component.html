@@ -1,3 +1,9 @@
+<app-tabs
+  [tabTitles]="['Libros', 'Más vendidos']"
+  (tabChanged)="handleTabChange($event)"
+></app-tabs>
+
+@if(tabs() === 0) {
 <app-dynamic-search-display
   [title]="'Libros'"
   [data]="booksData()"
@@ -5,3 +11,11 @@
   [categories]="booksCategories()"
   (onSearchEvent)="getBooks($event)"
 ></app-dynamic-search-display>
+} @else {
+<app-dynamic-search-display
+  [title]="'Más vendidos'"
+  [data]="booksData()"
+  [enableCategorySearch]="false"
+  [enableSearch]="false"
+></app-dynamic-search-display>
+}

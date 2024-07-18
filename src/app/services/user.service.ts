@@ -17,7 +17,7 @@ export class UserService {
     return this.http.post<{ message: string }>(`${this.URL}/usuarios_crear`, data, { headers, })
   }
 
-  getAllUsers(): Observable<string> {
+  getAllUsers(): Observable<any> {
     return this.http.get<string>(`${this.URL}/usuarios`);
   }
 }

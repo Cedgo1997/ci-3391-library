@@ -15,9 +15,13 @@ export class BookService {
   }
 
   getBooksByCategory(text: string, option?: string): Observable<any> {
-    return this.http.post(`${this.URL}/filtrar_libros_por_categoria`, {
+    return this.http.post<any>(`${this.URL}/filtrar_libros_por_categoria`, {
       in_categoria: option,
       in_texto: text
     })
+  }
+
+  getBestSellerBooks(): Observable<any> {
+    return this.http.get<any>(`${this.URL}/consultar_libros_mas_vendidos`);
   }
 }
