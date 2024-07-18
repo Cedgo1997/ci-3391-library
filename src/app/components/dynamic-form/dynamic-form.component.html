@@ -16,7 +16,7 @@
                 @case('select') {
                     <select [(ngModel)]="field.value" [name]="field.name" [required]="field.required">
                       @for(option of field.options; track trackByIndex(option)) {
-                          <option [value]="option">{{ option }}</option>
+                          <option [value]="option.value">{{ option.label }}</option>
                       }
                     </select>
                 }

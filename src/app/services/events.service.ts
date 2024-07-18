@@ -22,11 +22,23 @@ export class EventsService {
     );
   }
 
-  getAllEvents(filters?:any): Observable<any> {
-    return this.http.get<any>(`${this.URL}/consultar_eventos`, { params: {
-      fecha_inicio: filters?.fecha_inicio?.toString() || null,
-      fecha_final: filters?.fecha_final?.toString() || null,
-      nombre_sucursal: filters?.nombre_sucursal?.toString() || null,
-    } });
+  getAllEvents(filters?: any): Observable<any> {
+    let params = new HttpParams();
+
+    if (filters?.fecha_inicio) {
+      params = params.set('fecha_inicio', filters.fecha_inicio);
+    }
+    if (filters?.fecha_final) {
+      params = params.set('fecha_final', filters.fecha_final);
+    }
+    if (filters?.nombre_sucursal) {
+      params = params.set('nombre_sucursal', filters.nombre_sucursal);
+    }
+
+    return this.http.get<any>(`${this.URL}/consultar_eventos`, { params });
+  }
+
+  getAllSucursales(): Observable<any> {
+    return this.http.get<any>(`${this.URL}/consultar_sucursales`);
   }
 }

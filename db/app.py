@@ -89,6 +89,7 @@ def actualizar_informacion_usuario():
 ############### PRESTAMOS ###########
 #####################################
 
+
 @app.route("/realizar_prestamo", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def realizar_prestamo():
@@ -107,6 +108,7 @@ def realizar_prestamo():
     connection.close()
 
     return jsonify({"message": "Prestamo realizado exitosamente"})
+
 
 @app.route("/realizar_devolucion", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -127,6 +129,7 @@ def realizar_devolucion():
 
     return jsonify({"message": "Devolución realizada exitosamente"})
 
+
 @app.route("/ingresar_resena", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def ingresar_resena():
@@ -145,6 +148,7 @@ def ingresar_resena():
     connection.close()
 
     return jsonify({"message": "Reseña ingresada exitosamente"})
+
 
 @app.route("/aprobar_resena", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -180,6 +184,7 @@ def libros():
     cursor.close()
     connection.close()
     return json.dumps(libros, cls=Encoder)
+
 
 @app.route("/registrar_nuevo_libro", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -267,7 +272,7 @@ def filtrar_libros_por_categoria():
     connection.commit()
     connection.close()
 
-    return json.dumps(result, cls = Encoder)
+    return json.dumps(result, cls=Encoder)
 
 
 @app.route("/consultar_libros_mas_vendidos", methods=["GET"])
@@ -293,6 +298,7 @@ def consultar_libros_mas_vendidos():
         connection.commit()
         connection.close()
 
+
 @app.route("/consultar_sucursales", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def consultar_sucursales():
@@ -303,9 +309,9 @@ def consultar_sucursales():
         cursor.execute(
             f"SELECT * FROM sucursal"
         )
-
-        result = cursor.fetchall()
-        return json.dumps(result)
+        result = [dict((cursor.description[idx][0], value)
+                       for idx, value in enumerate(row)) for row in cursor.fetchall()]
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({"message": "Error al consultar las sucursales"})
@@ -314,6 +320,7 @@ def consultar_sucursales():
         cursor.close()
         connection.commit()
         connection.close()
+
 
 @app.route("/consultar_editoriales", methods=["GET"])
 @cross_origin(supports_credentials=True)
@@ -464,6 +471,7 @@ def organizar_evento():
 
     return jsonify({"message": "Evento organizado exitosamente"})
 
+
 @app.route("/consultar_eventos", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def consultar_eventos():
@@ -476,16 +484,18 @@ def consultar_eventos():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(
-            f"SELECT * FROM consultar_eventos('{in_fecha_inicio}', '{in_fecha_final}', '{in_nombre_sucursal}')"
-        )
+        # Construir la consulta con los parámetros
+        cursor.execute("""
+            SELECT * FROM consultar_eventos(%s, %s, %s)
+        """, (in_fecha_inicio, in_fecha_final, in_nombre_sucursal))
 
-        result = cursor.fetchall()
+        result = [dict((cursor.description[idx][0], value)
+                       for idx, value in enumerate(row)) for row in cursor.fetchall()]
 
-        return json.dumps(result)
+        return jsonify(result)
 
     except Exception as e:
-        printO(e)
+        print(e)
         return jsonify({'error': str(e)}), 500
 
     finally:

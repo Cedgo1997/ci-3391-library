@@ -1,8 +1,19 @@
-<app-tabs [tabTitles]="['Asistencia', 'Crear']" (tabChanged)="handleTabChange($event)"></app-tabs>
+<app-tabs
+  [tabTitles]="['Asistencia', 'Crear', 'Eventos']"
+  (tabChanged)="handleTabChange($event)"
+></app-tabs>
 
-
+@switch (tabIndex) { @case(2) {
+<app-dynamic-search-display
+  [title]="'Lista de eventos'"
+  [data]="listEvents()"
+  [enableCategorySearch]="false"
+  (onSearchEvent)="handleSearchEvent($event)"
+></app-dynamic-search-display>
+} @default {
 <app-dynamic-form
-  [title]="isAssist ? 'Registrar asistencia' : 'Crear evento'"
+  [title]="tabIndex === 0 ? 'Registrar asistencia' : 'Crear evento'"
   [fields]="fields"
   (sendFormData)="handleFormSubmit($event)"
 ></app-dynamic-form>
+} }

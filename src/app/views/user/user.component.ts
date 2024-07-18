@@ -9,9 +9,14 @@ import { DynamicSearchDisplayComponent } from '../../components/dynamic-search-d
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [DynamicFormComponent, TabsComponent, DynamicSearchDisplayComponent, SweetAlert2Module],
+  imports: [
+    DynamicFormComponent,
+    TabsComponent,
+    DynamicSearchDisplayComponent,
+    SweetAlert2Module,
+  ],
   templateUrl: './user.component.html',
-  styleUrl: './user.component.scss'
+  styleUrl: './user.component.scss',
 })
 export class UserComponent implements OnInit {
   userService = inject(UserService);
@@ -23,28 +28,28 @@ export class UserComponent implements OnInit {
       label: 'Cédula',
       name: 'in_cedula',
       value: '',
-      required: true
+      required: true,
     },
     {
       type: 'text',
       label: 'Nombre ',
       name: 'in_nombre',
       value: '',
-      required: true
+      required: true,
     },
     {
       type: 'text',
       label: 'Apellido',
       name: 'in_apellido',
       value: '',
-      required: true
+      required: true,
     },
     {
       type: 'date',
       label: 'Fecha de nacimiento',
       name: 'in_fecha_nacimiento',
       value: '',
-      required: true
+      required: true,
     },
     {
       type: 'email',
@@ -59,9 +64,14 @@ export class UserComponent implements OnInit {
       name: 'in_tipo_usuario',
       value: '',
       required: true,
-      options: ['Lector', 'Empleado', 'Bibliotecario', 'Autor']
-    }
-  ]
+      options: [
+        { value: 'Lector', label: 'Lector' },
+        { value: 'Empleado', label: 'Empleado' },
+        { value: 'Bibliotecario', label: 'Bibliotecario' },
+        { value: 'Autor', label: 'Autor' },
+      ],
+    },
+  ];
 
   ngOnInit(): void {
     this.getAllUsers();
@@ -69,28 +79,26 @@ export class UserComponent implements OnInit {
 
   createUser(data: any): void {
     if (data) {
-      this.userService.createUser(JSON.stringify({ ...data })).subscribe(
-        {
-          next: (response: { message: string }) => {
-            console.info(response);
-            Swal.fire({
-              title: '¡Creación exitosa!',
-              text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
-              icon: 'success',
-              confirmButtonText: 'Aceptar'
-            })
-          },
-          error: (error) => {
-            console.error(error);
-            Swal.fire({
-              title: 'Error',
-              text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
-              icon: 'error',
-              confirmButtonText: 'Aceptar'
-            })
-          }
-        }
-      )
+      this.userService.createUser(JSON.stringify({ ...data })).subscribe({
+        next: (response: { message: string }) => {
+          console.info(response);
+          Swal.fire({
+            title: '¡Creación exitosa!',
+            text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+          });
+        },
+        error: (error) => {
+          console.error(error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+          });
+        },
+      });
     }
   }
 
@@ -101,9 +109,7 @@ export class UserComponent implements OnInit {
   getAllUsers(): void {
     this.userService.getAllUsers().subscribe((users) => {
       this.usersData.set(users);
-    })
+    });
   }
-  handleSearchUser(data: { text: string, option?: string }): void {
-
-  }
+  handleSearchUser(data: { text: string; option?: string }): void {}
 }
