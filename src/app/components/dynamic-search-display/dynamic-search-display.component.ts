@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { SelectFilter } from '../../interfaces/filters.interface';
 
 @Component({
   selector: 'app-dynamic-search-display',
@@ -9,7 +10,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrl: './dynamic-search-display.component.scss'
 })
 export class DynamicSearchDisplayComponent {
-  @Output() onSearchEvent: EventEmitter<{ text: string, option: string }> = new EventEmitter();
+  @Output() onSearchEvent: EventEmitter<SelectFilter> = new EventEmitter();
   @Input() title = '';
   @Input() data: any[] = [];
   @Input() categories: any[] = [];

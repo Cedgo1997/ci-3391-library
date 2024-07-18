@@ -160,7 +160,7 @@ def ingresar_resena():
     connection.commit()
     connection.close()
 
-    return jsonify({"message": "Reseña ingresada exitosamente, espere su revisión y aprobación"})
+    return jsonify({"message": "Reseña ingresada exitosamente"})
 
 
 @app.route("/aprobar_resena", methods=["POST"])
@@ -322,9 +322,9 @@ def consultar_sucursales():
         cursor.execute(
             f"SELECT * FROM sucursal"
         )
-
-        result = cursor.fetchall()
-        return json.dumps(result)
+        result = [dict((cursor.description[idx][0], value)
+                       for idx, value in enumerate(row)) for row in cursor.fetchall()]
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({"message": "Error al consultar las sucursales"})
@@ -497,13 +497,15 @@ def consultar_eventos():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(
-            f"SELECT * FROM consultar_eventos('{in_fecha_inicio}', '{in_fecha_final}', '{in_nombre_sucursal}')"
-        )
+        # Construir la consulta con los parámetros
+        cursor.execute("""
+            SELECT * FROM consultar_eventos(%s, %s, %s)
+        """, (in_fecha_inicio, in_fecha_final, in_nombre_sucursal))
 
-        result = cursor.fetchall()
+        result = [dict((cursor.description[idx][0], value)
+                       for idx, value in enumerate(row)) for row in cursor.fetchall()]
 
-        return json.dumps(result)
+        return jsonify(result)
 
     except Exception as e:
         print(e)
