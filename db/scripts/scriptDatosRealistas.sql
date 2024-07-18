@@ -154,8 +154,8 @@ VALUES
 
 INSERT INTO Evento (fecha_inicio, fecha_final, nombre_sucursal)
 VALUES
-  ('2023-01-01', '2023-01-02', 'Sucursal Centro'),
-  ('2023-01-02', '2023-01-03', 'Sucursal Norte'),
-  ('2023-01-03', '2023-01-04', 'Sucursal Este'),
-  ('2023-01-04', '2023-01-05', 'Sucursal Sur'),
-  ('2023-01-05', '2023-01-06', 'Sucursal Oeste');
+  ('LOLLAPALOZA', '2023-01-01', '2023-01-02', 'Sucursal Centro'),
+  ('Club de lectura', '2023-01-02', '2023-01-03', 'Sucursal Norte'),
+  ('Firma de libros', '2023-01-03', '2023-01-04', 'Sucursal Este'),
+  ('Ofertas enero', '2023-01-04', '2023-01-05', 'Sucursal Sur'),
+  ('Exposición de Editoriales', '2023-01-05', '2023-01-06', 'Sucursal Oeste');
