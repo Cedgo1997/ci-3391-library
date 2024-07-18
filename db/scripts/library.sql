@@ -758,8 +758,8 @@ CREATE OR REPLACE FUNCTION generar_reporte_libros_mas_prestados(
 RETURNS TABLE (
     nombre_libro VARCHAR,
     edicion_libro SMALLINT,
-    fecha_inicio DATE,
-    fecha_final DATE,
+    primera_fecha_prestamo DATE,
+    ultima_fecha_prestamo DATE,
     cantidad_prestamos BIGINT
 ) 
 LANGUAGE plpgsql
@@ -769,8 +769,8 @@ BEGIN
     SELECT 
         l.titulo AS nombre_libro,
         l.edicion AS edicion_libro,
-        p.fecha_inicio,
-        p.fecha_final,
+        MIN(p.fecha_inicio) AS primera_fecha_prestamo,
+        MAX(p.fecha_final) AS ultima_fecha_prestamo,
         COUNT(*) AS cantidad_prestamos
     FROM 
         Presta p
@@ -782,9 +782,9 @@ BEGIN
         (p.fecha_inicio >= in_fecha_inicio OR in_fecha_inicio IS NULL)
         AND (p.fecha_final <= in_fecha_final OR in_fecha_final IS NULL)
     GROUP BY 
-        l.titulo, l.edicion, p.fecha_inicio, p.fecha_final
+        l.titulo, l.edicion
     ORDER BY 
-        cantidad_prestamos DESC, p.fecha_inicio DESC;
+        cantidad_prestamos DESC, primera_fecha_prestamo DESC;
 END $$;
 
 -- Filtrar libros por categoría
