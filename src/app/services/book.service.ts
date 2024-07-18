@@ -24,4 +24,10 @@ export class BookService {
   getBestSellerBooks(): Observable<any> {
     return this.http.get<any>(`${this.URL}/consultar_libros_mas_vendidos`);
   }
+
+  addBook(data: any): Observable<any> {
+    return this.http.post(`${this.URL}/registrar_nuevo_libro`, {
+      ...data
+    })
+  }
 }

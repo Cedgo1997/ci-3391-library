@@ -1,5 +1,5 @@
 <app-tabs
-  [tabTitles]="['Libros', 'Más vendidos']"
+  [tabTitles]="['Libros', 'Más vendidos', 'Añadir']"
   (tabChanged)="handleTabChange($event)"
 ></app-tabs>
 
@@ -11,11 +11,13 @@
   [categories]="booksCategories()"
   (onSearchEvent)="getBooks($event)"
 ></app-dynamic-search-display>
-} @else {
+} @else if(tabs() === 1) {
 <app-dynamic-search-display
   [title]="'Más vendidos'"
   [data]="booksData()"
   [enableCategorySearch]="false"
   [enableSearch]="false"
 ></app-dynamic-search-display>
+} @else { 
+  <app-dynamic-form [title]="'Añadir nuevo libro'" [fields]="fields" (sendFormData)="addNewBook($event)"></app-dynamic-form>
 }
