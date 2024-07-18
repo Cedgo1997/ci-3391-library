@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal, OnInit } from '@angular/core';
 import { DynamicSearchDisplayComponent } from "../../components/dynamic-search-display/dynamic-search-display.component";
 import { BookService } from '../../services/book.service';
 import { Subscription } from 'rxjs';
@@ -12,7 +12,7 @@ import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form
   templateUrl: './books.component.html',
   styleUrl: './books.component.scss'
 })
-export class BooksComponent implements OnDestroy {
+export class BooksComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
   private bookService = inject(BookService);
   booksData = signal([]);
@@ -89,6 +89,10 @@ export class BooksComponent implements OnDestroy {
 
   constructor() {
     this.getBooksCategories();
+  }
+
+  ngOnInit(): void {
+    this.getBooks({ text: '', option: '' });
   }
 
   getBooksCategories(): void {
