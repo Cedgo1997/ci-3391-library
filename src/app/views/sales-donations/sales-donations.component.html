@@ -1,1 +1,8 @@
-<p>sales-donations works!</p>
+<app-tabs [tabTitles]="['Vender', 'Donar']" (tabChanged)="handleTabChange($event)"></app-tabs>
+
+
+<app-dynamic-form
+  [title]="isSale ? 'Registrar venta' : 'Registrar donación'"
+  [fields]="fields"
+  (sendFormData)="handleFormSubmit($event)"
+></app-dynamic-form>

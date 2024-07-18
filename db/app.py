@@ -506,7 +506,7 @@ def consultar_eventos():
         return json.dumps(result)
 
     except Exception as e:
-        printO(e)
+        print(e)
         return jsonify({'error': str(e)}), 500
 
     finally:
