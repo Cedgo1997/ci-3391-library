@@ -1,3 +1,4 @@
+-- Active: 1720446170662@@127.0.0.1@5432@biblioteca
 INSERT INTO Persona (cedula, nombre, apellido, fecha_nacimiento, activo, correo)
 VALUES
   ('1111111111', 'Pedro', 'Perez', '1990-01-01', TRUE, 'pedro.perez@example.com'),
