@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS Ejemplar(
 );
 
 CREATE TABLE IF NOT EXISTS Factura(
-  nro_facturacion VARCHAR(8),
+  nro_facturacion INT GENERATED ALWAYS AS IDENTITY,
   fecha DATE NOT NULL,
   payment_method payment_method,
   PRIMARY KEY (nro_facturacion)
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS Trabaja(
 
 CREATE TABLE IF NOT EXISTS Vende(
   serial_ejemplar VARCHAR(10),
-  nro_facturacion VARCHAR(8),
+  nro_facturacion INT,
   cedula VARCHAR(12),
   PRIMARY KEY (serial_ejemplar, nro_facturacion, cedula),
   CONSTRAINT fk_vende_ejemplar
@@ -605,14 +605,16 @@ END $$;
 
 
 CREATE OR REPLACE PROCEDURE vender_ejemplar(
-    in_serial_ejemplar VARCHAR,
+    in_serial_ejemplar VARCHAR[],
     in_cedula_comprador INT,
     in_fecha_venta DATE,
-    in_nro_facturacion VARCHAR,
     in_payment_method payment_method
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+  serial_actual VARCHAR;
+  nro_facturacion INT;
 BEGIN
     
   IF EXISTS (
@@ -630,17 +632,17 @@ BEGIN
   END IF;
 
 
-  -- Si no existe una factura con el nro_facturacion ingresado, se crea una nueva
-  IF NOT EXISTS (
-    SELECT nro_facturacion FROM Factura
-    WHERE nro_facturacion = in_nro_facturacion
-  ) THEN
-    INSERT INTO Factura(nro_facturacion, fecha, payment_method)
-    VALUES (in_nro_facturacion, in_fecha_venta, in_payment_method);
-  END IF;
+  -- Esta función se llama individualmente por Venta, así que creamos la factura
+  INSERT INTO Factura(in_fecha_venta, in_payment_method)
+  VALUES (in_fecha_venta, in_payment_method)
+  RETURNING nro_facturacion;
 
-  INSERT INTO Vende(serial_ejemplar, nro_facturacion, cedula)
-  VALUES (in_serial_ejemplar, in_cedula_comprador, in_nro_facturacion, in_fecha_venta);
+  -- Iterar sobre cada serial en la lista de seriales de ejemplares
+  FOREACH serial_actual IN ARRAY seriales_ejemplares
+  LOOP
+      INSERT INTO Vende(serial_ejemplar, nro_facturacion, cedula)
+      VALUES (in_serial_ejemplar, in_nro_facturacion, in_cedula_comprador);
+  END LOOP;
   
   RAISE NOTICE 'Venta registrada exitosamente.';
 END $$;
