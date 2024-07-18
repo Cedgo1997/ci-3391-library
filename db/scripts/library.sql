@@ -554,6 +554,7 @@ END $$;
 
 CREATE OR REPLACE PROCEDURE registrar_nuevo_libro(
     in_isbn VARCHAR,
+    in_autor VARCHAR,
     in_titulo VARCHAR,
     in_precio NUMERIC(10,2),
     in_edicion SMALLINT,
@@ -587,8 +588,8 @@ BEGIN
   END IF;
 
   -- Insertar el nuevo libro en la tabla Libro
-  INSERT INTO Libro(titulo, autor, fecha_publicacion, isbn, cantidad)
-  VALUES (in_titulo, in_autor, in_fecha_publicacion, in_isbn, in_cantidad);
+  INSERT INTO Libro(isbn, titulo, precio, edicion, fecha_publicacion, restriccion_edad, nombre_sucursal, nombre_editorial)
+  VALUES (in_isbn, in_titulo, in_precio, in_edicion, in_fecha_publicacion, in_restriccion_edad, in_nombre_sucursal, in_nombre_editorial);
     
   RAISE NOTICE 'Libro registrado exitosamente.';
   

@@ -30,4 +30,14 @@ export class BookService {
       ...data
     })
   }
+
+  getBranch(): Observable<any> {
+    return this.http.get(`${this.URL}/consultar_sucursales`);
+  }
+
+  getPublisher(): Observable<any> {
+    return this.http.get(`${this.URL}/consultar_editoriales`);
+  }
+
+
 }

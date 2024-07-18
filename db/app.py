@@ -100,7 +100,7 @@ def registrar_nuevo_libro():
     data = request.json
 
     cursor.execute(
-        f"CALL registrar_nuevo_libro('{data['in_isbn']}','{data['in_titulo']}', '{data['in_precio']}', '{data['in_edicion']}', '{data['in_fecha_publicacion']}', '{data['in_restriccion_edad']}', '{data['in_nombre_sucursal']}', '{data['in_nombre_editorial']}')"
+        f"CALL registrar_nuevo_libro('{data['in_isbn']}', '{data['in_autor']}', '{data['in_titulo']}', '{data['in_precio']}', '{data['in_edicion']}', '{data['in_fecha_publicacion']}', '{data['in_restriccion_edad']}', '{data['in_nombre_sucursal']}', '{data['in_nombre_editorial']}')"
     )
 
     cursor.close()
@@ -196,6 +196,50 @@ def consultar_libros_mas_vendidos():
 
     except Exception as e:
         return jsonify({"message": "Error al consultar los libros más vendidos"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+@app.route("/consultar_sucursales", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_sucursales():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            f"SELECT * FROM sucursal"
+        )
+
+        result = cursor.fetchall()
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar las sucursales"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+@app.route("/consultar_editoriales", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_editoriales():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            f"SELECT * FROM editorial"
+        )
+
+        result = cursor.fetchall()
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar las editoriales"})
 
     finally:
         cursor.close()

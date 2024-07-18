@@ -19,7 +19,7 @@ export class BooksComponent implements OnDestroy {
   booksCategories = signal<string[]>([]);
   tabs = signal(0);
 
-  fields = [
+  fields: any = [
     {
       type: 'text',
       label: 'ISBN',
@@ -68,8 +68,7 @@ export class BooksComponent implements OnDestroy {
       name: 'in_nombre_sucursal',
       value: '',
       required: true,
-      options: [
-      ]
+      options: []
     },
     {
       type: 'select',
@@ -113,9 +112,25 @@ export class BooksComponent implements OnDestroy {
     this.tabs.set(index);
     if (this.tabs() === 0) {
       this.booksData.set([]);
-    } else {
+    } else if (this.tabs() === 1) {
       this.bookService.getBestSellerBooks().subscribe((books) => {
         this.booksData.set(books);
+      })
+    } else {
+      this.bookService.getBranch().subscribe(branches => {
+        const branchesList = branches.map((branch: any[]) => branch[0]);
+        const index = this.fields.findIndex((field: any) => field.name === 'in_nombre_sucursal');
+        if (index) {
+          this.fields[index].options = [...branchesList];
+        }
+      });
+
+      this.bookService.getPublisher().subscribe(publishers => {
+        const publishersList = publishers.map((branch: any[]) => branch[0]);
+        const index = this.fields.findIndex((field: any) => field.name === 'in_nombre_editorial');
+        if (index) {
+          this.fields[index].options = [...publishersList];
+        }
       })
     }
   }
