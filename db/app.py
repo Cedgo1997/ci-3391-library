@@ -43,6 +43,20 @@ def usuario(cedula):
     return jsonify(user)
 
 
+@app.route("/filtrar_usuarios")
+@cross_origin(supports_credentials=True)
+def filtrar_usuarios():
+    tipo = request.args.get('tipo')
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(
+        f"SELECT * FROM Persona p JOIN {tipo.capitalize()} x ON p.cedula = x.cedula")
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(result)
+
+
 @app.route("/usuarios_crear", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def crear_usuario():
