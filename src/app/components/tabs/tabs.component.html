@@ -1,0 +1,7 @@
+<div class="tabs">
+  @for (title of tabTitles; track title; let i = $index) {
+  <button (click)="selectTab(i)" [class.active]="i === selectedTab">
+    {{ title }}
+  </button>
+  }
+</div>

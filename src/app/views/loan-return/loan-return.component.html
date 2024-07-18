@@ -1,1 +1,8 @@
-<p>loan-return works!</p>
+<app-tabs [tabTitles]="['Préstamo', 'Devolución']" (tabChanged)="handleTabChange($event)"></app-tabs>
+
+
+<app-dynamic-form
+  [title]="isLoan ? 'Registro de Préstamo' : 'Registro de Devolución'"
+  [fields]="fields"
+  (sendFormData)="handleFormSubmit($event)"
+></app-dynamic-form>

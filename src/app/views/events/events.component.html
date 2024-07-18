@@ -1,1 +1,8 @@
-<p>events works!</p>
+<app-tabs [tabTitles]="['Asistencia', 'Crear']" (tabChanged)="handleTabChange($event)"></app-tabs>
+
+
+<app-dynamic-form
+  [title]="isAssist ? 'Registrar asistencia' : 'Crear evento'"
+  [fields]="fields"
+  (sendFormData)="handleFormSubmit($event)"
+></app-dynamic-form>

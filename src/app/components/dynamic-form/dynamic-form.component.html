@@ -21,12 +21,14 @@
                     <input type="checkbox" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('date') {
-                    <input type="date" [name]="field.name" ngModel [required]="field.required" />
+                    <input type="date" [name]="field.name" [(ngModel)]="field.value" [required]="field.required" />
                 }
             }
         </div>
     }
-    <button type="submit">Aceptar</button>
-    <button type="button" (click)="onCancel()">Cancelar</button>
+    <div class="button-container">
+        <button type="submit">Aceptar</button>
+        <button type="button" (click)="onCancel()">Cancelar</button>
+      </div>
   </form>
   
