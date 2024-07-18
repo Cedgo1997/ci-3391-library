@@ -3,4 +3,5 @@
   [data]="booksData()"
   [enableCategorySearch]="true"
   [categories]="booksCategories()"
+  (onSearchEvent)="getBooks($event)"
 ></app-dynamic-search-display>
