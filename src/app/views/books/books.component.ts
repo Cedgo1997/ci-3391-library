@@ -16,10 +16,15 @@ export class BooksComponent implements OnDestroy {
   booksData = signal([]);
   booksCategories = signal<string[]>([]);
 
+  constructor() {
+    this.getBooksCategories();
+  }
+
   getBooksCategories(): void {
     this.subscriptions.add(this.bookService.getBookCategories().subscribe(
       categories => {
-        this.booksCategories.set(categories);
+        //this.booksCategories.set(categories);
+        console.log(categories);
       }
     ))
   }

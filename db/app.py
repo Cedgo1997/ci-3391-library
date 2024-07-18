@@ -293,7 +293,7 @@ def consultar_categorias_libros():
     cursor = connection.cursor()
 
     cursor.execute(
-        f"SELECT * FROM Categoria"
+        f"SELECT * FROM categoría"
     )
 
     result = cursor.fetchall()
