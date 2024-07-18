@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS Categoría(
 
 CREATE TABLE IF NOT EXISTS Evento(
   pk_evento INT GENERATED ALWAYS AS IDENTITY,
+  nombre VARCHAR(100) NOT NULL,
   fecha_inicio DATE NOT NULL,
   fecha_final DATE NOT NULL,
   nombre_sucursal VARCHAR(100),
@@ -497,6 +498,7 @@ END $$;
 
 CREATE OR REPLACE PROCEDURE organizar_evento(
   in_cedula_bibliotecario VARCHAR(12),
+  in_nombre_evento VARCHAR(100),
   in_fecha_inicio DATE,
   in_fecha_final DATE,
   in_nombre_sucursal VARCHAR(100)
@@ -538,7 +540,7 @@ BEGIN
   END IF;
 
   INSERT INTO Evento(fecha_inicio, fecha_final, nombre_sucursal)
-  VALUES (in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
+  VALUES (in_nombre_evento, in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
 
   INSERT INTO Organiza(cedula, fecha_inicio, fecha_final, pk_evento)
   VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, (SELECT pk_evento FROM Evento WHERE fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final));
@@ -932,4 +934,35 @@ BEGIN
         p.nombre, p.cedula
     ORDER BY 
         cantidad_libros_donados DESC;
+END $$;
+
+-- Crear la función para consultar eventos
+CREATE OR REPLACE FUNCTION consultar_eventos(
+    in_fecha_inicio DATE DEFAULT NULL,
+    in_fecha_final DATE DEFAULT NULL,
+    in_nombre_sucursal VARCHAR DEFAULT NULL
+)
+RETURNS TABLE (
+    pk_evento INT,
+    nombre VARCHAR,
+    fecha_inicio DATE,
+    fecha_final DATE,
+    nombre_sucursal VARCHAR
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        e.pk_evento,
+        e.nombre,
+        e.fecha_inicio,
+        e.fecha_final,
+        e.nombre_sucursal
+    FROM 
+        Evento e
+    WHERE 
+        (in_fecha_inicio IS NULL OR e.fecha_inicio >= in_fecha_inicio)
+        AND (in_fecha_final IS NULL OR e.fecha_final <= in_fecha_final)
+        AND (in_nombre_sucursal IS NULL OR e.nombre_sucursal = in_nombre_sucursal);
 END $$;
