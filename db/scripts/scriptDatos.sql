@@ -132,13 +132,13 @@ VALUES
   ('9788423344570', 'EJEM9_L5'),
   ('9788423344570', 'EJEM10_L5');
 
-INSERT INTO Factura (nro_facturacion, fecha, payment_method)
+INSERT INTO Factura (fecha, payment_method)
 VALUES
-  ('FAC00001', '2023-01-01', 'Efectivo'),
-  ('FAC00002', '2023-01-02', 'Efectivo'),
-  ('FAC00003', '2023-01-03', 'Efectivo'),
-  ('FAC00004', '2023-01-04', 'Efectivo'),
-  ('FAC00005', '2023-01-05', 'Efectivo');
+  ('2023-01-01', 'Efectivo'),
+  ('2023-01-02', 'Efectivo'),
+  ('2023-01-03', 'Efectivo'),
+  ('2023-01-04', 'Efectivo'),
+  ('2023-01-05', 'Efectivo');
 
 INSERT INTO Categoría (tipo)
 VALUES

@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS Ejemplar(
 );
 
 CREATE TABLE IF NOT EXISTS Factura(
-  nro_facturacion VARCHAR(8),
+  nro_facturacion INT GENERATED ALWAYS AS IDENTITY,
   fecha DATE NOT NULL,
   payment_method payment_method,
   PRIMARY KEY (nro_facturacion)
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS Trabaja(
 
 CREATE TABLE IF NOT EXISTS Vende(
   serial_ejemplar VARCHAR(10),
-  nro_facturacion VARCHAR(8),
+  nro_facturacion INT,
   cedula VARCHAR(12),
   PRIMARY KEY (serial_ejemplar, nro_facturacion, cedula),
   CONSTRAINT fk_vende_ejemplar
@@ -344,8 +344,7 @@ CREATE OR REPLACE PROCEDURE crear_usuario(
   in_apellido VARCHAR(85),
   in_fecha_nacimiento DATE,
   in_correo VARCHAR(256),
-  in_tipo_usuario VARCHAR(10),
-  in_id_donante INT
+  in_tipo_usuario VARCHAR(10)
 )
 LANGUAGE plpgsql
 AS $$
@@ -360,20 +359,27 @@ BEGIN
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, in_id_donante);
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo);
 
-  IF in_tipo_usuario = 'bibliotecario' THEN
+  IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
     VALUES (in_cedula, in_correo);
-  ELSIF in_tipo_usuario = 'lector' THEN
+  ELSIF in_tipo_usuario = 'Lector' THEN
     INSERT INTO Lector(cedula)
     VALUES (in_cedula);
+  ELSEIF in_tipo_usuario = 'Autor' THEN
+    INSERT INTO Autor(cedula)
+    VALUES (in_cedula);
+  ELSEIF in_tipo_usuario = 'Empleado' THEN
+    INSERT INTO Empleado(cedula, cargo)
+    VALUES (in_cedula, 'Empleado');
   ELSE
     RAISE EXCEPTION 'El tipo de usuario no es valido.';
   END IF;
 
   RAISE NOTICE 'Usuario creado exitosamente.';
 END $$;
+
 
 CREATE OR REPLACE PROCEDURE realizar_prestamo(
   in_serial_ejemplar VARCHAR(10),
@@ -419,8 +425,8 @@ CREATE OR REPLACE PROCEDURE realizar_devolucion(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula_lector AND activo = TRUE) THEN
-        RAISE EXCEPTION 'El lector no esta activo.';
+  IF NOT EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula_lector) THEN
+        RAISE EXCEPTION 'El lector no esta registrado.';
   END IF;
 
   IF NOT EXISTS (
@@ -438,7 +444,6 @@ BEGIN
 END $$;
 
 CREATE OR REPLACE PROCEDURE ingresar_resena(
-  in_cedula_bibliotecario VARCHAR(12),
   in_cedula_lector VARCHAR(12),
   in_estrellas INT,
   in_comentario VARCHAR(256),
@@ -447,9 +452,6 @@ CREATE OR REPLACE PROCEDURE ingresar_resena(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM Bibliotecario WHERE cedula = in_cedula_bibliotecario) THEN
-    RAISE EXCEPTION 'El bibliotecario no existe.';
-  END IF;
 
   IF NOT EXISTS (SELECT 1 FROM Lector WHERE cedula = in_cedula_lector) THEN
     RAISE EXCEPTION 'El lector no existe.';
@@ -464,7 +466,7 @@ BEGIN
   END IF;
 
   INSERT INTO Resena(cedula_bibliotecario, cedula_lector, estrellas, comentario, isbn)
-  VALUES (in_cedula_bibliotecario, in_cedula_lector, in_estrellas, in_comentario, in_isbn);
+  VALUES (NULL, in_cedula_lector, in_estrellas, in_comentario, in_isbn);
 
   RAISE NOTICE 'Resena ingresada exitosamente.';
 END $$;
@@ -481,16 +483,12 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario no existe.';
   END IF;
 
-  IF NOT EXISTS (SELECT 1 FROM Resena WHERE cedula_bibliotecario = in_cedula_bibliotecario AND cedula_lector = in_cedula_lector AND isbn = in_isbn) THEN
-    RAISE EXCEPTION 'El bibliotecario no ingreso esta resena.';
-  END IF;
-
   IF NOT EXISTS (SELECT 1 FROM Resena WHERE cedula_lector = in_cedula_lector AND isbn = in_isbn) THEN
     RAISE EXCEPTION 'La resena no existe.';
   END IF;
 
   UPDATE Resena
-  SET aprobado = TRUE
+  SET aprobado = TRUE, cedula_bibliotecario = in_cedula_bibliotecario
   WHERE cedula_lector = in_cedula_lector AND isbn = in_isbn;
 
   RAISE NOTICE 'Resena aprobada exitosamente.';
@@ -607,14 +605,16 @@ END $$;
 
 
 CREATE OR REPLACE PROCEDURE vender_ejemplar(
-    in_serial_ejemplar VARCHAR,
+    in_serial_ejemplar VARCHAR[],
     in_cedula_comprador INT,
     in_fecha_venta DATE,
-    in_nro_facturacion VARCHAR,
     in_payment_method payment_method
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+  serial_actual VARCHAR;
+  nro_facturacion INT;
 BEGIN
     
   IF EXISTS (
@@ -632,17 +632,17 @@ BEGIN
   END IF;
 
 
-  -- Si no existe una factura con el nro_facturacion ingresado, se crea una nueva
-  IF NOT EXISTS (
-    SELECT nro_facturacion FROM Factura
-    WHERE nro_facturacion = in_nro_facturacion
-  ) THEN
-    INSERT INTO Factura(nro_facturacion, fecha, payment_method)
-    VALUES (in_nro_facturacion, in_fecha_venta, in_payment_method);
-  END IF;
+  -- Esta función se llama individualmente por Venta, así que creamos la factura
+  INSERT INTO Factura(in_fecha_venta, in_payment_method)
+  VALUES (in_fecha_venta, in_payment_method)
+  RETURNING nro_facturacion;
 
-  INSERT INTO Vende(serial_ejemplar, nro_facturacion, cedula)
-  VALUES (in_serial_ejemplar, in_cedula_comprador, in_nro_facturacion, in_fecha_venta);
+  -- Iterar sobre cada serial en la lista de seriales de ejemplares
+  FOREACH serial_actual IN ARRAY seriales_ejemplares
+  LOOP
+      INSERT INTO Vende(serial_ejemplar, nro_facturacion, cedula)
+      VALUES (in_serial_ejemplar, in_nro_facturacion, in_cedula_comprador);
+  END LOOP;
   
   RAISE NOTICE 'Venta registrada exitosamente.';
 END $$;

@@ -130,6 +130,19 @@ def realizar_devolucion():
     return jsonify({"message": "Devolución realizada exitosamente"})
 
 
+@app.route("/reseñas_sin_aprobar", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def reseñas_sin_aprobar():
+
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM Resena WHERE aprobado = false")
+    resenas = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return json.dumps(resenas)
+
+
 @app.route("/ingresar_resena", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def ingresar_resena():
@@ -140,7 +153,7 @@ def ingresar_resena():
     data = request.json
 
     cursor.execute(
-        f"CALL ingresar_resena('{data['in_cedula_bibliotecario']}', '{data['in_cedula_lector']}', '{data['in_estrellas']}', '{data['in_comentario']}', , '{data['in_isbn']}')"
+        f"CALL ingresar_resena('{data['in_cedula_lector']}', '{data['in_estrellas']}', '{data['in_comentario']}', , '{data['in_isbn']}')"
     )
 
     cursor.close()
