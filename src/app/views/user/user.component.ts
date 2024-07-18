@@ -1,18 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import Swal from 'sweetalert2';
-import { UserService } from '../../services/user.service';
-import { getCircularReplacer } from '../../helpers/circular-replacer';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
-  selector: 'app-register-user',
+  selector: 'app-user',
   standalone: true,
   imports: [DynamicFormComponent, SweetAlert2Module],
-  templateUrl: './register-user.component.html',
-  styleUrl: './register-user.component.scss'
+  templateUrl: './user.component.html',
+  styleUrl: './user.component.scss'
 })
-export class RegisterUserComponent {
+export class UserComponent {
   userService = inject(UserService);
   fields = [
     {
