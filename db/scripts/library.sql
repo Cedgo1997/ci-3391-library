@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS Sucursal(
 CREATE TABLE IF NOT EXISTS Libro(
   isbn VARCHAR(13),
   titulo VARCHAR(100) NOT NULL,
-  precio NUMERIC (2,2) NOT NULL,
+  precio NUMERIC (10,2) NOT NULL,
   edicion SMALLINT NOT NULL,
   fecha_publicacion DATE NOT NULL,
   restriccion_edad SMALLINT NOT NULL,
@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS Categoría(
 
 CREATE TABLE IF NOT EXISTS Evento(
   pk_evento INT GENERATED ALWAYS AS IDENTITY,
+  nombre VARCHAR(100) NOT NULL,
   fecha_inicio DATE NOT NULL,
   fecha_final DATE NOT NULL,
   nombre_sucursal VARCHAR(100),
@@ -343,7 +344,8 @@ CREATE OR REPLACE PROCEDURE crear_usuario(
   in_apellido VARCHAR(85),
   in_fecha_nacimiento DATE,
   in_correo VARCHAR(256),
-  in_tipo_usuario VARCHAR(10)
+  in_tipo_usuario VARCHAR(10),
+  in_id_donante INT
 )
 LANGUAGE plpgsql
 AS $$
@@ -353,25 +355,19 @@ BEGIN
     RAISE EXCEPTION 'El usuario ya existe.';
   END IF;
 
-  IF in_fecha_nacimiento >= CURRENT_DATE - INTERVAL '12 years' THEN
+  IF in_fecha_nacimiento >= CURRENT_DATE - INTERVAL '14 years' THEN
     RAISE EXCEPTION 'El usuario debe ser mayor de edad.';
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, in_id_donante);
 
-  IF in_tipo_usuario = 'Bibliotecario' THEN
+  IF in_tipo_usuario = 'bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
     VALUES (in_cedula, in_correo);
-  ELSIF in_tipo_usuario = 'Lector' THEN
+  ELSIF in_tipo_usuario = 'lector' THEN
     INSERT INTO Lector(cedula)
     VALUES (in_cedula);
-  ELSEIF in_tipo_usuario = 'Autor' THEN
-    INSERT INTO Autor(cedula)
-    VALUES (in_cedula);
-  ELSEIF in_tipo_usuario = 'Empleado' THEN
-    INSERT INTO Empleado(cedula, cargo)
-    VALUES (in_cedula, 'Empleado');
   ELSE
     RAISE EXCEPTION 'El tipo de usuario no es valido.';
   END IF;
@@ -393,10 +389,10 @@ BEGIN
     RAISE EXCEPTION 'El lector no esta activo.';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1 FROM Libro L
-    JOIN Persona P ON L.restriccion_edad <= EXTRACT(YEAR FROM age(P.fecha_nacimiento))
-    WHERE L.serial_ejemplar = in_serial_ejemplar AND P.cedula = in_cedula_lector
+  IF EXISTS (
+    SELECT 1 FROM Ejemplar e
+    JOIN Libro l ON e.isbn = l.isbn
+    WHERE e.serial_ejemplar = in_serial_ejemplar AND l.restriccion_edad > EXTRACT(YEAR FROM AGE(CURRENT_DATE, (SELECT fecha_nacimiento FROM Persona WHERE cedula = in_cedula_lector)))
   ) THEN
     RAISE EXCEPTION 'El lector no cumple con la restriccion de edad del libro.';
   END IF;
@@ -502,6 +498,7 @@ END $$;
 
 CREATE OR REPLACE PROCEDURE organizar_evento(
   in_cedula_bibliotecario VARCHAR(12),
+  in_nombre_evento VARCHAR(100),
   in_fecha_inicio DATE,
   in_fecha_final DATE,
   in_nombre_sucursal VARCHAR(100)
@@ -543,7 +540,7 @@ BEGIN
   END IF;
 
   INSERT INTO Evento(fecha_inicio, fecha_final, nombre_sucursal)
-  VALUES (in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
+  VALUES (in_nombre_evento, in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
 
   INSERT INTO Organiza(cedula, fecha_inicio, fecha_final, pk_evento)
   VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, (SELECT pk_evento FROM Evento WHERE fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final));
@@ -551,14 +548,15 @@ BEGIN
   INSERT INTO Realiza(nombre, pk_evento)
   VALUES (in_nombre_sucursal, (SELECT pk_evento FROM Evento WHERE fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final));
 
-    RAISE NOTICE 'Evento organizado exitosamente';
+  RAISE NOTICE 'Evento organizado exitosamente';
 
 END $$;
 
 CREATE OR REPLACE PROCEDURE registrar_nuevo_libro(
     in_isbn VARCHAR,
+    in_autor VARCHAR,
     in_titulo VARCHAR,
-    in_precio DECIMAL(2,2),
+    in_precio NUMERIC(10,2),
     in_edicion SMALLINT,
     in_fecha_publicacion DATE,
     in_restriccion_edad SMALLINT,
@@ -590,8 +588,8 @@ BEGIN
   END IF;
 
   -- Insertar el nuevo libro en la tabla Libro
-  INSERT INTO Libro(titulo, autor, fecha_publicacion, isbn, cantidad)
-  VALUES (in_titulo, in_autor, in_fecha_publicacion, in_isbn, in_cantidad);
+  INSERT INTO Libro(isbn, titulo, precio, edicion, fecha_publicacion, restriccion_edad, nombre_sucursal, nombre_editorial)
+  VALUES (in_isbn, in_titulo, in_precio, in_edicion, in_fecha_publicacion, in_restriccion_edad, in_nombre_sucursal, in_nombre_editorial);
     
   RAISE NOTICE 'Libro registrado exitosamente.';
   
@@ -763,8 +761,8 @@ CREATE OR REPLACE FUNCTION generar_reporte_libros_mas_prestados(
 RETURNS TABLE (
     nombre_libro VARCHAR,
     edicion_libro SMALLINT,
-    fecha_inicio DATE,
-    fecha_final DATE,
+    primera_fecha_prestamo DATE,
+    ultima_fecha_prestamo DATE,
     cantidad_prestamos BIGINT
 ) 
 LANGUAGE plpgsql
@@ -774,8 +772,8 @@ BEGIN
     SELECT 
         l.titulo AS nombre_libro,
         l.edicion AS edicion_libro,
-        p.fecha_inicio,
-        p.fecha_final,
+        MIN(p.fecha_inicio) AS primera_fecha_prestamo,
+        MAX(p.fecha_final) AS ultima_fecha_prestamo,
         COUNT(*) AS cantidad_prestamos
     FROM 
         Presta p
@@ -787,19 +785,20 @@ BEGIN
         (p.fecha_inicio >= in_fecha_inicio OR in_fecha_inicio IS NULL)
         AND (p.fecha_final <= in_fecha_final OR in_fecha_final IS NULL)
     GROUP BY 
-        l.titulo, l.edicion, p.fecha_inicio, p.fecha_final
+        l.titulo, l.edicion
     ORDER BY 
-        cantidad_prestamos DESC, p.fecha_inicio DESC;
+        cantidad_prestamos DESC, primera_fecha_prestamo DESC;
 END $$;
 
 -- Filtrar libros por categoría
 CREATE OR REPLACE FUNCTION filtrar_libros_por_categoria(
-    in_categoria VARCHAR
+    in_categoria VARCHAR,
+    in_texto VARCHAR
 )
 RETURNS TABLE (
     isbn VARCHAR,
     titulo VARCHAR,
-    precio SMALLINT,
+    precio NUMERIC(10,2),
     edicion SMALLINT,
     fecha_publicacion DATE,
     restriccion_edad SMALLINT,
@@ -824,7 +823,11 @@ BEGIN
     JOIN 
         Es_De ed ON l.isbn = ed.isbn
     WHERE 
-        ed.tipo = in_categoria;
+      (in_categoria IS NULL OR in_categoria = '' OR ed.tipo = in_categoria) AND
+      (in_texto IS NULL OR in_texto = '' OR 
+          l.titulo ILIKE '%' || in_texto || '%' OR 
+          l.nombre_sucursal ILIKE '%' || in_texto || '%' OR 
+          l.nombre_editorial ILIKE '%' || in_texto || '%');
 END $$;
 
 -- Consultar libros más vendidos
@@ -934,6 +937,33 @@ BEGIN
         cantidad_libros_donados DESC;
 END $$;
 
-DO $$ BEGIN
-  CALL crear_usuario('27318323', 'pedro', 'vielma', '2000-01-01', 'vasd@gmas.com', 'lector', null);
+-- Crear la función para consultar eventos
+CREATE OR REPLACE FUNCTION consultar_eventos(
+    in_fecha_inicio DATE DEFAULT NULL,
+    in_fecha_final DATE DEFAULT NULL,
+    in_nombre_sucursal VARCHAR DEFAULT NULL
+)
+RETURNS TABLE (
+    pk_evento INT,
+    nombre VARCHAR,
+    fecha_inicio DATE,
+    fecha_final DATE,
+    nombre_sucursal VARCHAR
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        e.pk_evento,
+        e.nombre,
+        e.fecha_inicio,
+        e.fecha_final,
+        e.nombre_sucursal
+    FROM 
+        Evento e
+    WHERE 
+        (in_fecha_inicio IS NULL OR e.fecha_inicio >= in_fecha_inicio)
+        AND (in_fecha_final IS NULL OR e.fecha_final <= in_fecha_final)
+        AND (in_nombre_sucursal IS NULL OR e.nombre_sucursal = in_nombre_sucursal);
 END $$;

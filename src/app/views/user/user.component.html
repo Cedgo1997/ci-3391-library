@@ -1,0 +1,19 @@
+<app-tabs
+  [tabTitles]="['Registrar', 'Ver usuarios']"
+  (tabChanged)="handleTabChange($event)"
+></app-tabs>
+
+@if(tabs() === 0) {
+<app-dynamic-form
+  title="Registro de Usuario"
+  [fields]="fields"
+  (sendFormData)="createUser($event)"
+></app-dynamic-form>
+} @else {
+<app-dynamic-search-display
+  [title]="'Lista de usuarios'"
+  [data]="usersData()"
+  [enableCategorySearch]="false"
+  (onSearchEvent)="handleSearchUser($event)"
+></app-dynamic-search-display>
+}

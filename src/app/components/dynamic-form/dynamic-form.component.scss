@@ -1,15 +1,15 @@
 form {
   background-color: #fff;
-  padding: 20px;
+  padding: 15px 25px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   width: 100%;
 }
 
-h2 {
+h3 {
   color: var(--color-primary);
-  margin-bottom: 20px;
+  margin: 10px 0;
   text-align: center;
 }
 
@@ -20,15 +20,16 @@ label {
 }
 
 input[type="text"],
+input[type="number"],
 input[type="email"],
 input[type="date"],
 select {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 16px;
+  padding: 5px;
+  margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 14px;
   box-sizing: border-box;
 }
 
@@ -44,21 +45,25 @@ button {
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
   cursor: pointer;
-  margin-right: 10px;
-
-  &.submit {
+  font-size: 14px;
+  margin: 10px;
+  height: 35px;
+  &[type="submit"] {
     background-color: var(--color-primary);
-    color: #fff;
+    color: white;
   }
+  &[type="button"] {
+    background-color: #ccc;
+    color: black;
+    &:hover {
+      background-color: #999;
+      
+    }
+  }
+}
 
-  &.cancel {
-    background-color: var(--color-secondary);
-    color: #fff;
-  }
-
-  &:hover {
-    opacity: 0.9;
-  }
+.button-container {
+  display: flex;
+  justify-content: center;
 }

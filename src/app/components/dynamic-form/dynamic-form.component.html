@@ -1,11 +1,14 @@
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
-    <h2>{{ title | uppercase }}</h2>
+    <h3>{{ title | uppercase }}</h3>
     @for (field of fields; track field.label) {
         <div class="field">
           <label>{{ field.label }}</label>
             @switch (field.type) {
                 @case('text') {
                     <input type="text" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                }
+                @case('number') {
+                    <input type="number" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('email') {
                     <input type="email" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
@@ -21,12 +24,14 @@
                     <input type="checkbox" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('date') {
-                    <input type="date" [name]="field.name" ngModel [required]="field.required" />
+                    <input type="date" [name]="field.name" [(ngModel)]="field.value" [required]="field.required" />
                 }
             }
         </div>
     }
-    <button type="submit">Aceptar</button>
-    <button type="button" (click)="onCancel()">Cancelar</button>
+    <div class="button-container">
+        <button type="submit">Aceptar</button>
+        <button type="button" (click)="onCancel()">Cancelar</button>
+      </div>
   </form>
   

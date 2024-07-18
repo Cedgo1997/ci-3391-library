@@ -1,19 +1,22 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import Swal from 'sweetalert2';
-import { UserService } from '../../services/user.service';
-import { getCircularReplacer } from '../../helpers/circular-replacer';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
+import { UserService } from '../../services/user.service';
+import { TabsComponent } from '../../components/tabs/tabs.component';
+import { DynamicSearchDisplayComponent } from '../../components/dynamic-search-display/dynamic-search-display.component';
 
 @Component({
-  selector: 'app-register-user',
+  selector: 'app-user',
   standalone: true,
-  imports: [DynamicFormComponent, SweetAlert2Module],
-  templateUrl: './register-user.component.html',
-  styleUrl: './register-user.component.scss'
+  imports: [DynamicFormComponent, TabsComponent, DynamicSearchDisplayComponent, SweetAlert2Module],
+  templateUrl: './user.component.html',
+  styleUrl: './user.component.scss'
 })
-export class RegisterUserComponent {
+export class UserComponent implements OnInit {
   userService = inject(UserService);
+  tabs = signal(0);
+  usersData = signal([]);
   fields = [
     {
       type: 'text',
@@ -60,6 +63,10 @@ export class RegisterUserComponent {
     }
   ]
 
+  ngOnInit(): void {
+    this.getAllUsers();
+  }
+
   createUser(data: any): void {
     if (data) {
       this.userService.createUser(JSON.stringify({ ...data })).subscribe(
@@ -85,5 +92,18 @@ export class RegisterUserComponent {
         }
       )
     }
+  }
+
+  handleTabChange(index: number): void {
+    this.tabs.set(index);
+  }
+
+  getAllUsers(): void {
+    this.userService.getAllUsers().subscribe((users) => {
+      this.usersData.set(users);
+    })
+  }
+  handleSearchUser(data: { text: string, option?: string }): void {
+
   }
 }

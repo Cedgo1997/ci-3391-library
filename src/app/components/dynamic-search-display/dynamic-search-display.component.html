@@ -2,12 +2,19 @@
   <h2>{{ title | uppercase }}</h2>
   @if (enableSearch) {
   <textarea
-    placeholder="Buscar libros..."
+    placeholder="Buscar..."
     name="field"
     id=""
     maxlength="200"
     rows="1"
+    (selectionchange)="triggerSearch($event)"
   ></textarea>
+  } @if(enableCategorySearch) {
+  <select (change)="triggerSelection($event)">
+    @for(option of categories; track categories.indexOf(option)) {
+    <option [value]="option">{{ option }}</option>
+    }
+  </select>
   }
   <div class="response-display">
     @for(item of data; track data.indexOf(item)) { @if(!!item) {

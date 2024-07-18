@@ -3,21 +3,32 @@ from flask import Flask, jsonify
 from flask import request
 from conexion_postgresql import connect_to_db
 from flask_cors import CORS, cross_origin
-
+from helper.decimal_encoder import Encoder
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 # Conexion a la base de datos
 connect_to_db()
 
+
 @app.route("/")
 def root():
     return "Hello World!"
+
+#####################################
+############### USUARIOS ############
+#####################################
 
 
 @app.route("/usuarios")
 @cross_origin(supports_credentials=True)
 def usuarios():
-    return jsonify("Usuarios")
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT cedula, nombre, apellido FROM Persona")
+    users = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(users)
 
 
 @app.route("/usuarios/<string:cedula>")
@@ -40,7 +51,7 @@ def crear_usuario():
 
     # Obtener los datos del usuario desde el body del request
     data = request.json
-    
+
     print("Data recibida:")
     print(data)
 
@@ -74,6 +85,101 @@ def actualizar_informacion_usuario():
 
     return jsonify({"message": "Información actualizada exitosamente"})
 
+#####################################
+############### PRESTAMOS ###########
+#####################################
+
+@app.route("/realizar_prestamo", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def realizar_prestamo():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL realizar_prestamo('{data['in_serial_ejemplar']}', '{data['in_cedula_lector']}', '{data['in_cedula_bibliotecario']}' , '{data['in_fecha_prestamo']}', '{data['in_fecha_devolucion']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Prestamo realizado exitosamente"})
+
+@app.route("/realizar_devolucion", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def realizar_devolucion():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL realizar_devolucion('{data['in_serial_ejemplar']}', '{data['in_cedula_bibliotecario']}', '{data['in_cedula_lector']}' , '{data['in_fecha_devolucion']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Devolución realizada exitosamente"})
+
+@app.route("/ingresar_resena", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def ingresar_resena():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL ingresar_resena('{data['in_cedula_bibliotecario']}', '{data['in_cedula_lector']}', '{data['in_estrellas']}', '{data['in_comentario']}', , '{data['in_isbn']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Reseña ingresada exitosamente"})
+
+@app.route("/aprobar_resena", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def aprobar_resena():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL aprobar_resena('{data['in_cedula_bibliotecario']}', '{data['in_cedula_lector']}', '{data['in_isbn']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Reseña aprobada exitosamente"})
+
+#####################################
+############### LIBROS ##############
+#####################################
+
+
+@app.route("/libros", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def libros():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM libro")
+    libros = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return json.dumps(libros, cls=Encoder)
 
 @app.route("/registrar_nuevo_libro", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -85,7 +191,7 @@ def registrar_nuevo_libro():
     data = request.json
 
     cursor.execute(
-        f"CALL registrar_nuevo_libro('{data['in_isbn']}','{data['in_titulo']}', '{data['in_precio']}', '{data['in_edicion']}', '{data['in_fecha_publicacion']}', '{data['in_restriccion_edad']}', '{data['in_nombre_sucursal']}', '{data['in_nombre_editorial']}')"
+        f"CALL registrar_nuevo_libro('{data['in_isbn']}', '{data['in_autor']}', '{data['in_titulo']}', '{data['in_precio']}', '{data['in_edicion']}', '{data['in_fecha_publicacion']}', '{data['in_restriccion_edad']}', '{data['in_nombre_sucursal']}', '{data['in_nombre_editorial']}')"
     )
 
     cursor.close()
@@ -93,6 +199,160 @@ def registrar_nuevo_libro():
     connection.close()
 
     return jsonify({"message": "Libro registrado exitosamente"})
+
+
+@app.route("/consultar_categorias_libros", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_categorias_libros():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        f"SELECT * FROM categoría"
+    )
+
+    result = cursor.fetchall()
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return json.dumps(result)
+
+
+@app.route("/generar_reporte_libros_mas_prestados", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def generar_reporte_libros_mas_prestados():
+    # Obtener parámetros de la consulta
+    in_fecha_inicio = request.args.get('fecha_inicio')
+    in_fecha_final = request.args.get('fecha_final')
+
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    try:
+
+        cursor.execute(
+            f"SELECT * FROM generar_reporte_libros_mas_prestados({in_fecha_inicio}, {in_fecha_final})"
+        )
+
+        result = cursor.fetchall()
+
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar los libros más prestados"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+
+@app.route("/filtrar_libros_por_categoria", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def filtrar_libros_por_categoria():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"SELECT * FROM filtrar_libros_por_categoria('{data['in_categoria']}','{data['in_texto']}')"
+    )
+
+    result = cursor.fetchall()
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return json.dumps(result, cls = Encoder)
+
+
+@app.route("/consultar_libros_mas_vendidos", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_libros_mas_vendidos():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+
+        cursor.execute(
+            f"SELECT * FROM consultar_libros_mas_vendidos()"
+        )
+
+        result = cursor.fetchall()
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar los libros más vendidos"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+@app.route("/consultar_sucursales", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_sucursales():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            f"SELECT * FROM sucursal"
+        )
+
+        result = cursor.fetchall()
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar las sucursales"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+@app.route("/consultar_editoriales", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_editoriales():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            f"SELECT * FROM editorial"
+        )
+
+        result = cursor.fetchall()
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar las editoriales"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+
+#####################################
+############### VENTAS ##############
+#####################################
+
+# Ver todas las ventas
+@app.route("/ventas", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def ventas():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM vende")
+    ventas = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return json.dumps(ventas, cls=Encoder)
 
 
 @app.route("/vender_ejemplar", methods=["POST"])
@@ -115,6 +375,31 @@ def vender_ejemplar():
     return jsonify({"message": "Venta realizada"})
 
 
+@app.route("/consultar_mejores_compradores", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_mejores_compradores():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            f"SELECT * FROM consultar_mejores_compradores()"
+        )
+
+        result = cursor.fetchall()
+        return json.dumps(result)
+    except Exception as e:
+        return jsonify({"message": "Error al consultar los mejores compradores"})
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+
+#####################################
+############### DONACIONES ##########
+#####################################
+
 @app.route("/donar_ejemplar", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def donar_ejemplar():
@@ -133,6 +418,99 @@ def donar_ejemplar():
     connection.close()
 
     return jsonify({"message": "Se ha registrado correctamente la donación"})
+
+
+@app.route("/consultar_personas_que_mas_donan_libros", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_personas_que_mas_donan_libros():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            f"SELECT * FROM consultar_personas_que_mas_donan_libros()"
+        )
+
+        result = cursor.fetchall()
+        return json.dumps(result)
+    except Exception as e:
+        return jsonify({"message": "Error al consultar las personas que más donan libros"})
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+
+#####################################
+############### EVENTOS #############
+#####################################
+
+@app.route("/organizar_evento", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def organizar_evento():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL organizar_evento('{data['in_cedula_bibliotecario']}', '{data['in_nombre_evento']}', '{data['in_fecha_inicio']}', '{data['in_fecha_final']}', '{data['in_nombre_sucursal']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Evento organizado exitosamente"})
+
+@app.route("/consultar_eventos", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_eventos():
+    # Obtener parámetros de la consulta
+    in_fecha_inicio = request.args.get('fecha_inicio')
+    in_fecha_final = request.args.get('fecha_final')
+    in_nombre_sucursal = request.args.get('nombre_sucursal')
+
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            f"SELECT * FROM consultar_eventos({in_fecha_inicio}, {in_fecha_final}, {in_nombre_sucursal})"
+        )
+
+        result = cursor.fetchall()
+
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar los eventos"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+
+@app.route("/registrar_nuevo_evento", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def registrar_nuevo_evento():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"CALL organizar_evento('{data['in_cedula_bibliotecario'], data['in_nombre_evento']}','{data['in_fecha_inicio']}', '{data['in_fecha_final']}', '{data['in_nombre_sucursal']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Evento registrado exitosamente"})
 
 
 @app.route("/registrar_asistencia_evento", methods=["POST"])
@@ -155,154 +533,28 @@ def registrar_asistencia_evento():
     return jsonify({"message": "Asistencia registrada exitosamente"})
 
 
-@app.route("/generar_reporte_libros_mas_prestados", methods=["POST"])
-@cross_origin(supports_credentials=True)
-def generar_reporte_libros_mas_prestados():
-    connection = connect_to_db()
-    cursor = connection.cursor()
-
-    # Obtener los datos desde el body del request
-    data = request.json
-
-    cursor.execute(
-        f"CALL generar_reporte_libros_mas_prestados('{data['in_fecha_inicio']}','{data['in_fecha_final']}')"
-    )
-
-    result = cursor.fetchall()
-
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    return json.dumps(result)
-
-
-@app.route("/filtrar_libros_por_categoria", methods=["POST"])
-@cross_origin(supports_credentials=True)
-def filtrar_libros_por_categoria():
-    connection = connect_to_db()
-    cursor = connection.cursor()
-
-    # Obtener los datos desde el body del request
-    data = request.json
-
-    cursor.execute(
-        f"CALL filtrar_libros_por_categoria('{data['in_categoria']}')"
-    )
-
-    result = cursor.fetchall()
-
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    return json.dumps(result)
-
-
-@app.route("/consultar_libros_mas_vendidos", methods=["POST"])
-@cross_origin(supports_credentials=True)
-def consultar_libros_mas_vendidos():
-    connection = connect_to_db()
-    cursor = connection.cursor()
-
-    # Obtener los datos desde el body del request
-    data = request.json
-
-    cursor.execute(
-        f"CALL consultar_libros_mas_vendidos()"
-    )
-
-    result = cursor.fetchall()
-
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    return json.dumps(result)
-
-
-@app.route("/consultar_mejores_compradores", methods=["POST"])
-@cross_origin(supports_credentials=True)
-def consultar_mejores_compradores():
-    connection = connect_to_db()
-    cursor = connection.cursor()
-
-    # Obtener los datos desde el body del request
-    data = request.json
-
-    cursor.execute(
-        f"CALL consultar_mejores_compradores()"
-    )
-
-    result = cursor.fetchall()
-
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    return json.dumps(result)
-
-
-@app.route("/consultar_bibliotecarios_que_organizan_mas_eventos", methods=["POST"])
+@app.route("/consultar_bibliotecarios_que_organizan_mas_eventos", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def consultar_bibliotecarios_que_organizan_mas_eventos():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    # Obtener los datos desde el body del request
-    data = request.json
+    try:
+        cursor.execute(
+            f"SELECT * FROM consultar_bibliotecarios_que_organizan_mas_eventos()"
+        )
 
-    cursor.execute(
-        f"CALL consultar_bibliotecarios_que_organizan_mas_eventos()"
-    )
+        result = cursor.fetchall()
+        return json.dumps(result)
 
-    result = cursor.fetchall()
+    except Exception as e:
+        return jsonify({"message": "Error al consultar los bibliotecarios"})
 
-    cursor.close()
-    connection.commit()
-    connection.close()
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
 
-    return json.dumps(result)
-
-
-@app.route("/consultar_personas_que_mas_donan_libros", methods=["POST"])
-@cross_origin(supports_credentials=True)
-def consultar_personas_que_mas_donan_libros():
-    connection = connect_to_db()
-    cursor = connection.cursor()
-
-    # Obtener los datos desde el body del request
-    data = request.json
-
-    cursor.execute(
-        f"CALL consultar_personas_que_mas_donan_libros()"
-    )
-
-    result = cursor.fetchall()
-
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    return json.dumps(result)
-
-@app.route("/consultar_categorias_libros", methods=["GET"])
-@cross_origin(supports_credentials=True)
-def consultar_categorias_libros():
-    connection = connect_to_db()
-    cursor = connection.cursor()
-
-    cursor.execute(
-        f"SELECT * FROM Categoria"
-    )
-
-    result = cursor.fetchall()
-
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    return json.dumps(result)
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
