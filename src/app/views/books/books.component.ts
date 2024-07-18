@@ -35,6 +35,13 @@ export class BooksComponent implements OnDestroy {
       required: true
     },
     {
+      type: 'text',
+      label: 'Autor ',
+      name: 'in_autor',
+      value: '',
+      required: true
+    },
+    {
       type: 'number',
       label: 'Precio',
       name: 'in_precio',
