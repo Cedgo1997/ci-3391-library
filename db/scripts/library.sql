@@ -359,7 +359,7 @@ BEGIN
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo);
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
 
   IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
