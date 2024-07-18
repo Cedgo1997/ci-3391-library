@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import Swal from 'sweetalert2';
 import { UserService } from '../../services/user.service';
-import { DynamicFormComponent } from "../dynamic-form/dynamic-form.component";
 import { getCircularReplacer } from '../../helpers/circular-replacer';
+import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
 
 @Component({
   selector: 'app-register-user',
@@ -13,7 +13,7 @@ import { getCircularReplacer } from '../../helpers/circular-replacer';
   styleUrl: './register-user.component.scss'
 })
 export class RegisterUserComponent {
-  constructor(private userService: UserService) { }
+  userService = inject(UserService);
   fields = [
     {
       type: 'text',
@@ -62,7 +62,7 @@ export class RegisterUserComponent {
 
   createUser(data: any): void {
     if (data) {
-      this.userService.createUser(JSON.stringify({ ...data }, getCircularReplacer())).subscribe(
+      this.userService.createUser(JSON.stringify({ ...data })).subscribe(
         {
           next: (response: { message: string }) => {
             console.info(response);
@@ -74,13 +74,13 @@ export class RegisterUserComponent {
             })
           },
           error: (error) => {
+            console.error(error);
             Swal.fire({
               title: 'Error',
               text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
               icon: 'error',
               confirmButtonText: 'Aceptar'
             })
-            console.error(error);
           }
         }
       )

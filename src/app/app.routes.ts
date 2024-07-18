@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { RegisterUserComponent } from './components/register-user/register-user.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
+import { RegisterUserComponent } from './views/register-user/register-user.component';
 
 export const ROUTES: Routes = [
     { path: 'register-user', component: RegisterUserComponent },
