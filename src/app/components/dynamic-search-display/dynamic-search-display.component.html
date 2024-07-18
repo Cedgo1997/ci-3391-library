@@ -8,6 +8,11 @@
     maxlength="200"
     rows="1"
   ></textarea>
+  <select>
+    @for(option of categories; track categories.indexOf(option)) {
+    <option [value]="option">{{ option }}</option>
+    }
+  </select>
   }
   <div class="response-display">
     @for(item of data; track data.indexOf(item)) { @if(!!item) {

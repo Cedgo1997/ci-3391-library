@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { DynamicSearchDisplayComponent } from "../../components/dynamic-search-display/dynamic-search-display.component";
+import { BookService } from '../../services/book.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-books',
@@ -8,6 +10,21 @@ import { DynamicSearchDisplayComponent } from "../../components/dynamic-search-d
   templateUrl: './books.component.html',
   styleUrl: './books.component.scss'
 })
-export class BooksComponent {
-  booksData = signal([{name: "pollo"}]);
+export class BooksComponent implements OnDestroy {
+  subscriptions: Subscription = new Subscription();
+  private bookService = inject(BookService);
+  booksData = signal([]);
+  booksCategories = signal<string[]>([]);
+
+  getBooksCategories(): void {
+    this.subscriptions.add(this.bookService.getBookCategories().subscribe(
+      categories => {
+        this.booksCategories.set(categories);
+      }
+    ))
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 }

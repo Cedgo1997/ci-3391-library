@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 })
 export class UserService {
   URL = environment.base_url;
-  constructor(private http: HttpClient) { }
+  private http = inject(HttpClient);
 
   createUser(data: any): Observable<{ message: string }> {
     const headers = new HttpHeaders({
