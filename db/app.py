@@ -42,6 +42,16 @@ def usuario(cedula):
     connection.close()
     return jsonify(user)
 
+@app.route("/usuarios_tipo/<string:tipo_usuario>")
+@cross_origin(supports_credentials=True)
+def usuarios_tipo(tipo_usuario):
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM '{tipo_usuario}'")
+    users = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(users)
 
 @app.route("/usuarios_crear", methods=["POST"])
 @cross_origin(supports_credentials=True)
