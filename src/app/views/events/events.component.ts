@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Field } from '../../interfaces/field.interface';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
 import { TabsComponent } from '../../components/tabs/tabs.component';
+import { EventsService } from '../../services/events.service';
 
 @Component({
   selector: 'app-events',
@@ -10,9 +11,10 @@ import { TabsComponent } from '../../components/tabs/tabs.component';
   templateUrl: './events.component.html',
   styleUrl: './events.component.scss',
 })
-export class EventsComponent {
+export class EventsComponent implements OnInit {
+  eventsService = inject(EventsService);
   isAssist: boolean = true; // Variable para alternar entre préstamo y devolución
-
+  listEvents = signal([]); // Variable para almacenar la lista de eventos
   // Obtener la fecha actual
   currentDate: string = new Date().toISOString().split('T')[0];
 
@@ -64,6 +66,11 @@ export class EventsComponent {
 
   fields: Field[] = this.eventsFields;
 
+
+  ngOnInit(): void {
+    this.getAllEvents();
+  }
+
   handleTabChange(index: number) {
     this.isAssist = index === 0;
     this.fields = this.isAssist ? this.eventsFields : this.registerFields;
@@ -77,5 +84,11 @@ export class EventsComponent {
       console.log('Create event:', formData);
       // Lógica para crear un evento
     }
+  }
+
+  getAllEvents(filters: any = {}) {
+    this.eventsService.getAllEvents(filters).subscribe((events: any) => {
+      this.listEvents.set(events);
+    });
   }
 }

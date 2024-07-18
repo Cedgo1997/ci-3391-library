@@ -304,13 +304,13 @@ def consultar_eventos():
     in_fecha_inicio = request.args.get('fecha_inicio')
     in_fecha_final = request.args.get('fecha_final')
     in_nombre_sucursal = request.args.get('nombre_sucursal')
-
+    print(request.args.get('fecha_inicio'))
     connection = connect_to_db()
     cursor = connection.cursor()
 
     try:
         cursor.execute(
-            f"SELECT * FROM consultar_eventos({in_fecha_inicio}, {in_fecha_final}, {in_nombre_sucursal})"
+            f"SELECT * FROM consultar_eventos('{in_fecha_inicio}', '{in_fecha_final}', '{in_nombre_sucursal}')"
         )
 
         result = cursor.fetchall()
@@ -318,7 +318,8 @@ def consultar_eventos():
         return json.dumps(result)
 
     except Exception as e:
-        return jsonify({"message": "Error al consultar los eventos"})
+        printO(e)
+        return jsonify({'error': str(e)}), 500
 
     finally:
         cursor.close()
