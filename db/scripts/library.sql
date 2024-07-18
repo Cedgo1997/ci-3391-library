@@ -789,7 +789,8 @@ END $$;
 
 -- Filtrar libros por categoría
 CREATE OR REPLACE FUNCTION filtrar_libros_por_categoria(
-    in_categoria VARCHAR
+    in_categoria VARCHAR,
+    in_texto VARCHAR
 )
 RETURNS TABLE (
     isbn VARCHAR,
@@ -819,7 +820,11 @@ BEGIN
     JOIN 
         Es_De ed ON l.isbn = ed.isbn
     WHERE 
-        ed.tipo = in_categoria;
+      (in_categoria IS NULL OR in_categoria = '' OR ed.tipo = in_categoria) AND
+      (in_texto IS NULL OR in_texto = '' OR 
+          l.titulo ILIKE '%' || in_texto || '%' OR 
+          l.nombre_sucursal ILIKE '%' || in_texto || '%' OR 
+          l.nombre_editorial ILIKE '%' || in_texto || '%');
 END $$;
 
 -- Consultar libros más vendidos
