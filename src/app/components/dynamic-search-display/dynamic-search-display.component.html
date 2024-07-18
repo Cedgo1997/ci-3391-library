@@ -1,0 +1,17 @@
+<div class="container">
+  <h2>{{ title | uppercase }}</h2>
+  <textarea
+    placeholder="Buscar libros..."
+    name="field"
+    id=""
+    maxlength="200"
+    rows="1"
+  ></textarea>
+  <div class="response-display">
+    @for(item of data; track data.indexOf(item)) { @if(!!item) {
+    <div class="response-container">
+      <pre class="response-code">{{ item | json }}</pre>
+    </div>
+    } }
+  </div>
+</div>
