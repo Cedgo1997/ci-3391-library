@@ -62,7 +62,7 @@ export class RegisterUserComponent {
 
   createUser(data: any): void {
     if (data) {
-      this.userService.createUser(JSON.stringify({ ...data }, getCircularReplacer())).subscribe(
+      this.userService.createUser(JSON.stringify({ ...data })).subscribe(
         {
           next: (response: { message: string }) => {
             console.info(response);
@@ -74,13 +74,13 @@ export class RegisterUserComponent {
             })
           },
           error: (error) => {
+            console.error(error);
             Swal.fire({
               title: 'Error',
               text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
               icon: 'error',
               confirmButtonText: 'Aceptar'
             })
-            console.error(error);
           }
         }
       )

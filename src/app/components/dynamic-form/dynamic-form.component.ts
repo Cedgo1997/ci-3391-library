@@ -18,8 +18,7 @@ export class DynamicFormComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      console.log('Formulario enviado:', form.value);
-      this.sendFormData.emit(form);
+      this.sendFormData.emit(form.value);
       form.reset();
     }
   }
