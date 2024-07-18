@@ -16,7 +16,18 @@ export class EventsService {
       'Content-Type': 'application/json',
     });
     return this.http.post<{ message: string }>(
-      `${this.URL}/registrar_nuevo_evento`,
+      `${this.URL}/organizar_evento`,
+      data,
+      { headers }
+    );
+  }
+
+  registerAssistant(data: any): Observable<{ message: string }> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+    return this.http.post<{ message: string }>(
+      `${this.URL}/registrar_asistencia_evento`,
       data,
       { headers }
     );
