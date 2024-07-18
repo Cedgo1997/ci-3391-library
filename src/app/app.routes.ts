@@ -5,6 +5,7 @@ import { LoanReturnComponent } from './views/loan-return/loan-return.component';
 import { EventsComponent } from './views/events/events.component';
 import { SalesDonationsComponent } from './views/sales-donations/sales-donations.component';
 import { ReportsComponent } from './views/reports/reports.component';
+import { BooksComponent } from './views/books/books.component';
 
 export const ROUTES: Routes = [
     { path: 'events', component: EventsComponent },
@@ -12,6 +13,7 @@ export const ROUTES: Routes = [
     { path: 'register-user', component: RegisterUserComponent },
     { path: 'reports', component: ReportsComponent },
     { path: 'sales-donations', component: SalesDonationsComponent },
+    { path: 'books', component: BooksComponent },
     { path: '', component: WelcomeComponent },
     { path: '**', redirectTo: '' }
 ]
