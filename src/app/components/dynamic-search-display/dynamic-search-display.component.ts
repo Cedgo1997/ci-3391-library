@@ -24,7 +24,7 @@ export class DynamicSearchDisplayComponent {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
       this.onSearchEvent.emit({
-        text: element.value,
+        text: element.value.trim(),
         option: this.selectedOption
       })
     }, 1500);

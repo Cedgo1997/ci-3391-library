@@ -187,7 +187,7 @@ def filtrar_libros_por_categoria():
     data = request.json
 
     cursor.execute(
-        f"CALL filtrar_libros_por_categoria('{data['in_categoria']}')"
+        f"CALL filtrar_libros_por_categoria('{data['in_categoria']}','{data['in_texto']}')"
     )
 
     result = cursor.fetchall()

@@ -28,6 +28,22 @@ export class BooksComponent implements OnDestroy {
     ))
   }
 
+  getBooks(event: { text: string, option: string }): void {
+    if (event) {
+      this.bookService.getBooksByCategory(event.text, event.option).subscribe(
+        {
+          next: (books) => {
+            this.booksData.set(books);
+          },
+          error: (error) => {
+            this.booksData.set([]);
+            console.error(error);
+          }
+        }
+      )
+    }
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }

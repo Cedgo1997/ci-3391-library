@@ -13,4 +13,11 @@ export class BookService {
   getBookCategories(): Observable<string[]> {
     return this.http.get<string[]>(`${this.URL}/consultar_categorias_libros`);
   }
+
+  getBooksByCategory(text: string, option?: string): Observable<any> {
+    return this.http.post(`${this.URL}/filtrar_libros_por_categoria`, {
+      in_categoria: option,
+      in_texto: text
+    })
+  }
 }
