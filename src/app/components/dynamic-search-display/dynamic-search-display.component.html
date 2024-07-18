@@ -10,7 +10,7 @@
     (selectionchange)="triggerSearch($event)"
   ></textarea>
   } @if(enableCategorySearch) {
-  <select (selectionchange)="(selectedOption)">
+  <select (change)="triggerSelection($event)">
     @for(option of categories; track categories.indexOf(option)) {
     <option [value]="option">{{ option }}</option>
     }

@@ -17,17 +17,31 @@ export class DynamicSearchDisplayComponent {
   @Input() enableCategorySearch = true;
 
   selectedOption: string = ''
+  text = '';
   debounceTimer!: ReturnType<typeof setTimeout>;
 
   triggerSearch(event: Event): void {
-    const element = event.target as HTMLTextAreaElement;
+    this.text = (event.target as HTMLTextAreaElement).value;
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
       this.onSearchEvent.emit({
-        text: element.value.trim(),
+        text: this.text.trim(),
         option: this.selectedOption
       })
-    }, 1500);
+    }, 500);
+  }
+
+  triggerSelection(event: Event): void {
+    console.log(event)
+    this.selectedOption = (event.target as HTMLSelectElement).value;
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => {
+      this.onSearchEvent.emit({
+        text: this.text.trim(),
+        option: this.selectedOption
+      })
+    }, 500);
+
   }
 
 }
