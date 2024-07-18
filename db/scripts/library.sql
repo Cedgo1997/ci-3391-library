@@ -587,9 +587,19 @@ BEGIN
     RAISE EXCEPTION 'La sucursal no existe.';
   END IF;
 
+  IF NOT EXISTS (
+    SELECT 1 FROM Autor
+    WHERE cedula = in_autor
+  ) THEN
+    RAISE EXCEPTION 'El autor no existe.';
+  END IF;
+
   -- Insertar el nuevo libro en la tabla Libro
   INSERT INTO Libro(isbn, titulo, precio, edicion, fecha_publicacion, restriccion_edad, nombre_sucursal, nombre_editorial)
   VALUES (in_isbn, in_titulo, in_precio, in_edicion, in_fecha_publicacion, in_restriccion_edad, in_nombre_sucursal, in_nombre_editorial);
+
+  INSERT INTO Escribe(cedula_autor, isbn)
+  VALUES (in_autor, in_isbn);
     
   RAISE NOTICE 'Libro registrado exitosamente.';
   
