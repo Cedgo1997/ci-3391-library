@@ -8,7 +8,7 @@ import { Field } from '../../interfaces/field.interface';
   standalone: true,
   imports: [DynamicFormComponent, TabsComponent],
   templateUrl: './sales-donations.component.html',
-  styleUrl: './sales-donations.component.scss'
+  styleUrl: './sales-donations.component.scss',
 })
 export class SalesDonationsComponent {
   isSale: boolean = true;
@@ -84,7 +84,22 @@ export class SalesDonationsComponent {
       type: 'select',
       value: '',
       options: [
-        'Efectivo', 'Crédito', 'Débito', 'Transferencia'
+        {
+          label: 'Efectivo',
+          value: 'Efectivo',
+        },
+        {
+          label: 'Crédito',
+          value: 'Crédito',
+        },
+        {
+          label: 'Débito',
+          value: 'Débito',
+        },
+        {
+          label: 'Transferencia',
+          value: 'Transferencia',
+        },
       ],
       required: true,
     },
