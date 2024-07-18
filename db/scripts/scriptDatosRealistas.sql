@@ -152,7 +152,7 @@ VALUES
   ('Anime'),
   ('Fantasía');
 
-INSERT INTO Evento (fecha_inicio, fecha_final, nombre_sucursal)
+INSERT INTO Evento (nombre, fecha_inicio, fecha_final, nombre_sucursal)
 VALUES
   ('LOLLAPALOZA', '2023-01-01', '2023-01-02', 'Sucursal Centro'),
   ('Club de lectura', '2023-01-02', '2023-01-03', 'Sucursal Norte'),
