@@ -425,8 +425,8 @@ CREATE OR REPLACE PROCEDURE realizar_devolucion(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula_lector AND activo = TRUE) THEN
-        RAISE EXCEPTION 'El lector no esta activo.';
+  IF NOT EXISTS (SELECT 1 FROM Persona WHERE cedula = in_cedula_lector) THEN
+        RAISE EXCEPTION 'El lector no esta registrado.';
   END IF;
 
   IF NOT EXISTS (
@@ -444,7 +444,6 @@ BEGIN
 END $$;
 
 CREATE OR REPLACE PROCEDURE ingresar_resena(
-  in_cedula_bibliotecario VARCHAR(12),
   in_cedula_lector VARCHAR(12),
   in_estrellas INT,
   in_comentario VARCHAR(256),
@@ -453,9 +452,6 @@ CREATE OR REPLACE PROCEDURE ingresar_resena(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM Bibliotecario WHERE cedula = in_cedula_bibliotecario) THEN
-    RAISE EXCEPTION 'El bibliotecario no existe.';
-  END IF;
 
   IF NOT EXISTS (SELECT 1 FROM Lector WHERE cedula = in_cedula_lector) THEN
     RAISE EXCEPTION 'El lector no existe.';
@@ -470,7 +466,7 @@ BEGIN
   END IF;
 
   INSERT INTO Resena(cedula_bibliotecario, cedula_lector, estrellas, comentario, isbn)
-  VALUES (in_cedula_bibliotecario, in_cedula_lector, in_estrellas, in_comentario, in_isbn);
+  VALUES (NULL, in_cedula_lector, in_estrellas, in_comentario, in_isbn);
 
   RAISE NOTICE 'Resena ingresada exitosamente.';
 END $$;
