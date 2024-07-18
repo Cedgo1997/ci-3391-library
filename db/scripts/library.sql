@@ -389,10 +389,10 @@ BEGIN
     RAISE EXCEPTION 'El lector no esta activo.';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1 FROM Libro L
-    JOIN Persona P ON L.restriccion_edad <= EXTRACT(YEAR FROM age(P.fecha_nacimiento))
-    WHERE L.serial_ejemplar = in_serial_ejemplar AND P.cedula = in_cedula_lector
+  IF EXISTS (
+    SELECT 1 FROM Ejemplar e
+    JOIN Libro l ON e.isbn = l.isbn
+    WHERE e.serial_ejemplar = in_serial_ejemplar AND l.restriccion_edad > EXTRACT(YEAR FROM AGE(CURRENT_DATE, (SELECT fecha_nacimiento FROM Persona WHERE cedula = in_cedula_lector)))
   ) THEN
     RAISE EXCEPTION 'El lector no cumple con la restriccion de edad del libro.';
   END IF;
@@ -548,12 +548,13 @@ BEGIN
   INSERT INTO Realiza(nombre, pk_evento)
   VALUES (in_nombre_sucursal, (SELECT pk_evento FROM Evento WHERE fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final));
 
-    RAISE NOTICE 'Evento organizado exitosamente';
+  RAISE NOTICE 'Evento organizado exitosamente';
 
 END $$;
 
 CREATE OR REPLACE PROCEDURE registrar_nuevo_libro(
     in_isbn VARCHAR,
+    in_autor VARCHAR,
     in_titulo VARCHAR,
     in_precio NUMERIC(10,2),
     in_edicion SMALLINT,
@@ -587,8 +588,8 @@ BEGIN
   END IF;
 
   -- Insertar el nuevo libro en la tabla Libro
-  INSERT INTO Libro(titulo, autor, fecha_publicacion, isbn, cantidad)
-  VALUES (in_titulo, in_autor, in_fecha_publicacion, in_isbn, in_cantidad);
+  INSERT INTO Libro(isbn, titulo, precio, edicion, fecha_publicacion, restriccion_edad, nombre_sucursal, nombre_editorial)
+  VALUES (in_isbn, in_titulo, in_precio, in_edicion, in_fecha_publicacion, in_restriccion_edad, in_nombre_sucursal, in_nombre_editorial);
     
   RAISE NOTICE 'Libro registrado exitosamente.';
   

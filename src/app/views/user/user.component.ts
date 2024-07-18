@@ -103,7 +103,7 @@ export class UserComponent implements OnInit {
       this.usersData.set(users);
     })
   }
-  handleSearchUser(): void {
+  handleSearchUser(data: { text: string, option?: string }): void {
 
   }
 }
