@@ -11,6 +11,7 @@ import { Component, Input } from '@angular/core';
 export class DynamicSearchDisplayComponent {
   @Input() title = '';
   @Input() data: any[] = [];
+  @Input() enableSearch = true;
   onSubmit(): void {
   }
 }
