@@ -23,8 +23,7 @@ export class BooksComponent implements OnDestroy {
   getBooksCategories(): void {
     this.subscriptions.add(this.bookService.getBookCategories().subscribe(
       categories => {
-        //this.booksCategories.set(categories);
-        console.log(categories);
+        this.booksCategories.set(["", ...categories]);
       }
     ))
   }

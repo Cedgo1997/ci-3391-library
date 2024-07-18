@@ -1,1 +1,6 @@
-<app-dynamic-search-display [title]="'Libros'" [data]="booksData()"></app-dynamic-search-display>
+<app-dynamic-search-display
+  [title]="'Libros'"
+  [data]="booksData()"
+  [enableCategorySearch]="true"
+  [categories]="booksCategories()"
+></app-dynamic-search-display>

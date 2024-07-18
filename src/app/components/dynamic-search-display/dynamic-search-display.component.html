@@ -7,8 +7,9 @@
     id=""
     maxlength="200"
     rows="1"
+    (selectionchange)="triggerSearch($event)"
   ></textarea>
-  <select>
+  <select (selectionchange)="(selectedOption)">
     @for(option of categories; track categories.indexOf(option)) {
     <option [value]="option">{{ option }}</option>
     }
