@@ -42,6 +42,7 @@ def usuario(cedula):
     connection.close()
     return jsonify(user)
 
+
 @app.route("/usuarios_tipo/<string:tipo_usuario>")
 @cross_origin(supports_credentials=True)
 def usuarios_tipo(tipo_usuario):
@@ -52,19 +53,6 @@ def usuarios_tipo(tipo_usuario):
     cursor.close()
     connection.close()
     return jsonify(users)
-
-@app.route("/filtrar_usuarios")
-@cross_origin(supports_credentials=True)
-def filtrar_usuarios():
-    tipo = request.args.get('tipo')
-    connection = connect_to_db()
-    cursor = connection.cursor()
-    cursor.execute(
-        f"SELECT * FROM Persona p JOIN {tipo.capitalize()} x ON p.cedula = x.cedula")
-    result = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return jsonify(result)
 
 
 @app.route("/usuarios_crear", methods=["POST"])
@@ -449,7 +437,7 @@ def vender_ejemplar():
     data = request.json
 
     cursor.execute(
-        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_nro_facturacion']}', '{data['in_payment_method']}')"
+        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_payment_method']}')"
     )
 
     cursor.close()
