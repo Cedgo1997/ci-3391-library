@@ -286,6 +286,23 @@ def consultar_personas_que_mas_donan_libros():
 
     return json.dumps(result)
 
+@app.route("/consultar_categorias_libros", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_categorias_libros():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        f"SELECT * FROM Categoria"
+    )
+
+    result = cursor.fetchall()
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return json.dumps(result)
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
