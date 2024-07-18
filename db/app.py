@@ -199,14 +199,11 @@ def filtrar_libros_por_categoria():
     return json.dumps(result)
 
 
-@app.route("/consultar_libros_mas_vendidos", methods=["POST"])
+@app.route("/consultar_libros_mas_vendidos", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def consultar_libros_mas_vendidos():
     connection = connect_to_db()
     cursor = connection.cursor()
-
-    # Obtener los datos desde el body del request
-    data = request.json
 
     cursor.execute(
         f"CALL consultar_libros_mas_vendidos()"
