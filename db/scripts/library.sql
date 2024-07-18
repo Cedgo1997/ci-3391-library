@@ -353,19 +353,25 @@ BEGIN
     RAISE EXCEPTION 'El usuario ya existe.';
   END IF;
 
-  IF in_fecha_nacimiento >= CURRENT_DATE - INTERVAL '18 years' THEN
+  IF in_fecha_nacimiento >= CURRENT_DATE - INTERVAL '12 years' THEN
     RAISE EXCEPTION 'El usuario debe ser mayor de edad.';
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
   VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
 
-  IF in_tipo_usuario = 'bibliotecario' THEN
+  IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
     VALUES (in_cedula, in_correo);
-  ELSIF in_tipo_usuario = 'lector' THEN
+  ELSIF in_tipo_usuario = 'Lector' THEN
     INSERT INTO Lector(cedula)
     VALUES (in_cedula);
+  ELSEIF in_tipo_usuario = 'Autor' THEN
+    INSERT INTO Autor(cedula)
+    VALUES (in_cedula);
+  ELSEIF in_tipo_usuario = 'Empleado' THEN
+    INSERT INTO Empleado(cedula, cargo)
+    VALUES (in_cedula, 'Empleado');
   ELSE
     RAISE EXCEPTION 'El tipo de usuario no es valido.';
   END IF;
