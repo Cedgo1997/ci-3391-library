@@ -3,7 +3,7 @@ from flask import Flask, jsonify
 from flask import request
 from conexion_postgresql import connect_to_db
 from flask_cors import CORS, cross_origin
-
+from helper.decimal_encoder import Encoder
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 # Conexion a la base de datos
@@ -167,7 +167,7 @@ def filtrar_libros_por_categoria():
     data = request.json
 
     cursor.execute(
-        f"CALL filtrar_libros_por_categoria('{data['in_categoria']}','{data['in_texto']}')"
+        f"SELECT * FROM filtrar_libros_por_categoria('{data['in_categoria']}','{data['in_texto']}')"
     )
 
     result = cursor.fetchall()
@@ -176,7 +176,7 @@ def filtrar_libros_por_categoria():
     connection.commit()
     connection.close()
 
-    return json.dumps(result)
+    return json.dumps(result, cls = Encoder)
 
 
 @app.route("/consultar_libros_mas_vendidos", methods=["GET"])
