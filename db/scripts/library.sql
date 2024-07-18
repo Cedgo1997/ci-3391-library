@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS Sucursal(
 CREATE TABLE IF NOT EXISTS Libro(
   isbn VARCHAR(13),
   titulo VARCHAR(100) NOT NULL,
-  precio NUMERIC (2,2) NOT NULL,
+  precio NUMERIC (10,2) NOT NULL,
   edicion SMALLINT NOT NULL,
   fecha_publicacion DATE NOT NULL,
   restriccion_edad SMALLINT NOT NULL,
@@ -343,7 +343,8 @@ CREATE OR REPLACE PROCEDURE crear_usuario(
   in_apellido VARCHAR(85),
   in_fecha_nacimiento DATE,
   in_correo VARCHAR(256),
-  in_tipo_usuario VARCHAR(10)
+  in_tipo_usuario VARCHAR(10),
+  in_id_donante INT
 )
 LANGUAGE plpgsql
 AS $$
@@ -353,25 +354,19 @@ BEGIN
     RAISE EXCEPTION 'El usuario ya existe.';
   END IF;
 
-  IF in_fecha_nacimiento >= CURRENT_DATE - INTERVAL '12 years' THEN
+  IF in_fecha_nacimiento >= CURRENT_DATE - INTERVAL '14 years' THEN
     RAISE EXCEPTION 'El usuario debe ser mayor de edad.';
   END IF;
 
   INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, in_id_donante);
 
-  IF in_tipo_usuario = 'Bibliotecario' THEN
+  IF in_tipo_usuario = 'bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
     VALUES (in_cedula, in_correo);
-  ELSIF in_tipo_usuario = 'Lector' THEN
+  ELSIF in_tipo_usuario = 'lector' THEN
     INSERT INTO Lector(cedula)
     VALUES (in_cedula);
-  ELSEIF in_tipo_usuario = 'Autor' THEN
-    INSERT INTO Autor(cedula)
-    VALUES (in_cedula);
-  ELSEIF in_tipo_usuario = 'Empleado' THEN
-    INSERT INTO Empleado(cedula, cargo)
-    VALUES (in_cedula, 'Empleado');
   ELSE
     RAISE EXCEPTION 'El tipo de usuario no es valido.';
   END IF;
@@ -558,7 +553,7 @@ END $$;
 CREATE OR REPLACE PROCEDURE registrar_nuevo_libro(
     in_isbn VARCHAR,
     in_titulo VARCHAR,
-    in_precio DECIMAL(2,2),
+    in_precio NUMERIC(10,2),
     in_edicion SMALLINT,
     in_fecha_publicacion DATE,
     in_restriccion_edad SMALLINT,
@@ -799,7 +794,7 @@ CREATE OR REPLACE FUNCTION filtrar_libros_por_categoria(
 RETURNS TABLE (
     isbn VARCHAR,
     titulo VARCHAR,
-    precio SMALLINT,
+    precio NUMERIC(10,2),
     edicion SMALLINT,
     fecha_publicacion DATE,
     restriccion_edad SMALLINT,
@@ -932,8 +927,4 @@ BEGIN
         p.nombre, p.cedula
     ORDER BY 
         cantidad_libros_donados DESC;
-END $$;
-
-DO $$ BEGIN
-  CALL crear_usuario('27318323', 'pedro', 'vielma', '2000-01-01', 'vasd@gmas.com', 'lector', null);
 END $$;

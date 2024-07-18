@@ -62,11 +62,11 @@ VALUES
 
 INSERT INTO Libro (isbn, titulo, precio, edicion, fecha_publicacion, restriccion_edad, nombre_sucursal, nombre_editorial)
 VALUES
-  ('9788423351882', 'La sombra del viento', 19.99, 1, '2001-06-01', 16, 'Sucursal Centro', 'Editorial Planeta'),
-  ('9788408096238', 'El juego del ángel', 21.99, 1, '2008-04-17', 16, 'Sucursal Norte', 'Editorial Planeta'),
-  ('9788432212218', 'El tiempo entre costuras', 23.50, 1, '2009-06-03', 14, 'Sucursal Este', 'Editorial Planeta'),
-  ('9788498381231', 'La catedral del mar', 17.50, 1, '2006-02-16', 18, 'Sucursal Sur', 'Editorial Grijalbo'),
-  ('9788423344570', 'Patria', 22.95, 1, '2016-09-06', 18, 'Sucursal Oeste', 'Editorial Tusquets');
+  ('9788423351882', 'La sombra del viento', 20.0, 1, '2001-06-01', 16, 'Sucursal Centro', 'Editorial Planeta'),
+  ('9788408096238', 'El juego del ángel', 22.0, 1, '2008-04-17', 16, 'Sucursal Norte', 'Editorial Planeta'),
+  ('9788432212218', 'El tiempo entre costuras', 24.0, 1, '2009-06-03', 14, 'Sucursal Este', 'Editorial Planeta'),
+  ('9788498381231', 'La catedral del mar', 18.0, 1, '2006-02-16', 18, 'Sucursal Sur', 'Editorial Santillana'),
+  ('9788423344570', 'Patria', 23.0, 1, '2016-09-06', 18, 'Sucursal Oeste', 'Editorial Edebé');
 
 INSERT INTO Ejemplar (isbn, serial_ejemplar)
 VALUES
