@@ -159,3 +159,11 @@ VALUES
   ('Aprende Python en 3 minutos', '2023-01-03', '2023-01-04', 'Sucursal Este'),
   ('La tierra es plana','2023-01-04', '2023-01-05', 'Sucursal Sur'),
   ('Las vacunas causan autismo','2023-01-05', '2023-01-06', 'Sucursal Oeste');
+
+INSERT INTO es_de (isbn, tipo)
+VALUES
+('9788423351882', 'Romance'),
+('9788408096238', 'Ciencia Ficción'),
+('9788432212218', 'Romance'),
+('9788498381231', 'Terror'),
+('9788423344570', 'Psicología');
