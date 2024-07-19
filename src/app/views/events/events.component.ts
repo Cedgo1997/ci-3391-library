@@ -34,6 +34,7 @@ export class EventsComponent implements OnInit {
       name: 'in_pk_evento',
       type: 'select',
       value: '',
+      options: [],
       required: true,
     },
     {
@@ -136,6 +137,7 @@ export class EventsComponent implements OnInit {
       this.eventsService.createEvent(JSON.stringify({ ...data })).subscribe({
         next: (response: { message: string }) => {
           console.info(response);
+          this.getAllEvents();
           Swal.fire({
             title: '¡Creación exitosa!',
             text: response.message,
@@ -167,6 +169,11 @@ export class EventsComponent implements OnInit {
   getAllEvents(filters?: FilterEvents) {
     this.eventsService.getAllEvents(filters).subscribe((events: any) => {
       this.listEvents.set(events);
+      const eventsOptions = events.map((event: any) => ({
+        label: event.nombre,
+        value: event.pk_evento,
+      }));
+      this.eventsFields[0].options = eventsOptions;
     });
   }
 

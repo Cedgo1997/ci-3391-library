@@ -49,11 +49,13 @@ def usuario(cedula):
 def usuarios_tipo(tipo_usuario):
     connection = connect_to_db()
     cursor = connection.cursor()
-    cursor.execute(f"SELECT * FROM persona p JOIN {tipo_usuario} t ON t.cedula = p.cedula")
+    cursor.execute(
+        f"SELECT * FROM persona p JOIN {tipo_usuario} t ON t.cedula = p.cedula")
     users = [
-            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
-            for row in cursor.fetchall()
-        ]
+        dict((cursor.description[idx][0], value)
+             for idx, value in enumerate(row))
+        for row in cursor.fetchall()
+    ]
     cursor.close()
     connection.close()
     return jsonify(users)
@@ -402,7 +404,8 @@ def consultar_sucursales():
     try:
         cursor.execute(f"SELECT * FROM sucursal")
         result = [
-            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
             for row in cursor.fetchall()
         ]
         return jsonify(result)
@@ -425,7 +428,8 @@ def consultar_editoriales():
     try:
         cursor.execute(f"SELECT * FROM editorial")
         result = [
-            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
             for row in cursor.fetchall()
         ]
         return json.dumps(result)
@@ -501,6 +505,35 @@ def consultar_mejores_compradores():
 ############### DONACIONES ##########
 #####################################
 
+@app.route("/crear_donante", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def crear_donante():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    # Obtener los datos desde el body del request
+    data = request.json
+
+    cursor.execute(
+        f"INSERT INTO Donante DEFAULT VALUES RETURNING id_donante; "
+    )
+    id_generado = cursor.fetchone()[0]
+    print("ID generado:", id_generado)
+
+    if "in_cedula" in data:
+        cursor.execute(
+            f"UPDATE Persona SET id_donante = {id_generado} WHERE cedula = '{data['in_cedula']}'"
+        )
+    elif 'in_nombre_editorial' in data:
+        cursor.execute(
+            f"UPDATE Editorial SET id_donante = {id_generado} WHERE nombre = '{data['in_nombre_editorial']}'"
+        )
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Donante registrado exitosamente"})
+
 
 @app.route("/donar_ejemplar", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -510,9 +543,10 @@ def donar_ejemplar():
 
     # Obtener los datos desde el body del request
     data = request.json
+    lista = data['in_serial_ejemplar']
 
     cursor.execute(
-        f"CALL donar_ejemplar('{data['in_serial_ejemplar']}','{data['in_id_donante']}', '{data['in_fecha_donacion']}', '{data['in_nombre_sucursal']}')"
+        f"CALL donar_ejemplar(ARRAY{lista},'{data['in_id_donante']}', '{data['in_fecha_donacion']}', '{data['in_nombre_sucursal']}')"
     )
 
     cursor.close()
@@ -529,7 +563,8 @@ def consultar_personas_que_mas_donan_libros():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(f"SELECT * FROM consultar_personas_que_mas_donan_libros()")
+        cursor.execute(
+            f"SELECT * FROM consultar_personas_que_mas_donan_libros()")
 
         result = cursor.fetchall()
         return json.dumps(result)
@@ -589,7 +624,8 @@ def consultar_eventos():
         )
 
         result = [
-            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
             for row in cursor.fetchall()
         ]
 
