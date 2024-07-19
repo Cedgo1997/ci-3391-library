@@ -139,7 +139,7 @@ def realizar_prestamo():
     data = request.json
 
     cursor.execute(
-        f"CALL realizar_prestamo('{data['in_serial_ejemplar']}', '{data['in_cedula_lector']}', '{data['in_cedula_bibliotecario']}' , '{data['in_fecha_prestamo']}', '{data['in_fecha_devolucion']}')"
+        f"CALL realizar_prestamo('{data['in_serial_ejemplar']}', '{data['in_cedula_bibliotecario']}', '{data['in_cedula_lector']}' , '{data['in_fecha_inicio']}', '{data['in_fecha_final']}')"
     )
 
     cursor.close()

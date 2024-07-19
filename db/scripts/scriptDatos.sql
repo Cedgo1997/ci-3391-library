@@ -1,7 +1,6 @@
 INSERT INTO Persona (cedula, nombre, apellido, fecha_nacimiento, activo, correo)
 VALUES
-  ('1111111111', 'Pedro Predro', 'Pedro Pe', '1976-01-01', TRUE, 'pedro.pedrope@example.com'),
-  ('1111111121', 'Pedro', 'Perez', '1990-01-01', TRUE, 'pedro.perez@example.com'),
+  ('1111111111', 'Pedro', 'Perez', '1990-01-01', TRUE, 'pedro.perez@example.com'),
   ('1111111112', 'Maria', 'Gomez', '1991-02-02', TRUE, 'maria.gomez@example.com'),
   ('1111111113', 'Juan', 'Rodriguez', '1992-03-03', TRUE, 'juan.rodriguez@example.com'),
   ('1111111114', 'Laura', 'Lopez', '1993-04-04', TRUE, 'laura.lopez@example.com'),
