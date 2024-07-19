@@ -1,10 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import Swal from 'sweetalert2';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
-import { UserService } from '../../services/user.service';
-import { TabsComponent } from '../../components/tabs/tabs.component';
 import { DynamicSearchDisplayComponent } from '../../components/dynamic-search-display/dynamic-search-display.component';
+import { TabsComponent } from '../../components/tabs/tabs.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-user',
@@ -18,7 +18,7 @@ import { DynamicSearchDisplayComponent } from '../../components/dynamic-search-d
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',
 })
-export class UserComponent implements OnInit {
+export class UserComponent {
   userService = inject(UserService);
   tabs = signal(0);
   usersData = signal([]);
@@ -73,10 +73,6 @@ export class UserComponent implements OnInit {
     },
   ];
 
-  ngOnInit(): void {
-    this.getAllUsers();
-  }
-
   createUser(data: any): void {
     if (data) {
       this.userService.createUser(data).subscribe({
@@ -104,6 +100,9 @@ export class UserComponent implements OnInit {
 
   handleTabChange(index: number): void {
     this.tabs.set(index);
+    if (this.tabs() === 1) {
+      this.getAllUsers();
+    }
   }
 
   getAllUsers(): void {
@@ -111,5 +110,5 @@ export class UserComponent implements OnInit {
       this.usersData.set(users);
     });
   }
-  handleSearchUser(data: { text: string; option?: string }): void {}
+  handleSearchUser(data: { text: string; option?: string }): void { }
 }
