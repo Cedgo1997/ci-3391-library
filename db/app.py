@@ -416,8 +416,8 @@ def consultar_editoriales():
         cursor.execute(
             f"SELECT * FROM editorial"
         )
-
-        result = cursor.fetchall()
+        result = [dict((cursor.description[idx][0], value)
+                       for idx, value in enumerate(row)) for row in cursor.fetchall()]
         return json.dumps(result)
 
     except Exception as e:

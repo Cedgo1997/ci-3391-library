@@ -129,18 +129,17 @@ export class BooksComponent implements OnInit, OnDestroy {
       })
     } else {
       this.bookService.getBranch().subscribe(branches => {
-        const branchesList = branches.map((branch: any[]) => branch[0]);
         const index = this.fields.findIndex((field: any) => field.name === 'in_nombre_sucursal');
+        console.log(branches.map((branch: any) => ({ value: branch.nombre, label: branch.label })))
         if (index) {
-          this.fields[index].options = [...branchesList];
+          this.fields[index].options = branches.map((branch: any) => ({ value: branch.nombre, label: branch.nombre }));
         }
       });
 
       this.bookService.getPublisher().subscribe(publishers => {
-        const publishersList = publishers.map((branch: any[]) => branch[0]);
         const index = this.fields.findIndex((field: any) => field.name === 'in_nombre_editorial');
         if (index) {
-          this.fields[index].options = [...publishersList];
+          this.fields[index].options = publishers.map((publisher: any) => ({ value: publisher.nombre, label: publisher.nombre }));
         }
       })
     }
