@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS Presta(
   fecha_inicio DATE,
   fecha_entrega DATE DEFAULT NULL,
   fecha_final DATE,
-  PRIMARY KEY (serial_ejemplar, cedula_bibliotecario, cedula_lector, fecha_inicio, fecha_entrega, fecha_final),
+  PRIMARY KEY (serial_ejemplar, cedula_bibliotecario, cedula_lector, fecha_inicio, fecha_final),
   CONSTRAINT fk_presta_ejemplar
     FOREIGN KEY (serial_ejemplar)
       REFERENCES Ejemplar(serial_ejemplar)
