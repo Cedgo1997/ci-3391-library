@@ -334,16 +334,25 @@ def generar_reporte_libros_mas_prestados():
     cursor = connection.cursor()
     try:
 
+        # Construir la consulta con los parámetros
         cursor.execute(
-            f"SELECT * FROM generar_reporte_libros_mas_prestados({in_fecha_inicio}, {in_fecha_final})"
+            """
+            SELECT * FROM generar_reporte_libros_mas_prestados(%s, %s)
+        """,
+            (in_fecha_inicio, in_fecha_final),
         )
 
-        result = cursor.fetchall()
+        result = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
 
-        return json.dumps(result)
+        return jsonify(result)
 
     except Exception as e:
-        return jsonify({"message": "Error al consultar los libros más prestados"})
+        print(e)
+        return jsonify({"message": "Error al generar el reporte {e}"})
 
     finally:
         cursor.close()
@@ -383,8 +392,13 @@ def consultar_libros_mas_vendidos():
 
         cursor.execute(f"SELECT * FROM consultar_libros_mas_vendidos()")
 
-        result = cursor.fetchall()
-        return json.dumps(result)
+        result = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
+
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({"message": "Error al consultar los libros más vendidos"})
@@ -491,8 +505,12 @@ def consultar_mejores_compradores():
     try:
         cursor.execute(f"SELECT * FROM consultar_mejores_compradores()")
 
-        result = cursor.fetchall()
-        return json.dumps(result)
+        result = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
+        return jsonify(result)
     except Exception as e:
         return jsonify({"message": "Error al consultar los mejores compradores"})
     finally:
@@ -566,8 +584,12 @@ def consultar_personas_que_mas_donan_libros():
         cursor.execute(
             f"SELECT * FROM consultar_personas_que_mas_donan_libros()")
 
-        result = cursor.fetchall()
-        return json.dumps(result)
+        result = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
+        return jsonify(result)
     except Exception as e:
         return jsonify(
             {"message": "Error al consultar las personas que más donan libros"}
@@ -692,8 +714,12 @@ def consultar_bibliotecarios_que_organizan_mas_eventos():
             f"SELECT * FROM consultar_bibliotecarios_que_organizan_mas_eventos()"
         )
 
-        result = cursor.fetchall()
-        return json.dumps(result)
+        result = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({"message": "Error al consultar los bibliotecarios"})
