@@ -530,13 +530,6 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario ya tiene un evento en esa fecha.';
   END IF;
 
-  IF EXISTS (
-    SELECT 1 FROM Realiza
-    WHERE nombre = in_nombre_sucursal AND fecha_inicio <= in_fecha_final AND fecha_final >= in_fecha_inicio
-  ) THEN
-    RAISE EXCEPTION 'La sucursal ya tiene un evento en esa fecha.';
-  END IF;
-
   INSERT INTO Evento(fecha_inicio, fecha_final, nombre_sucursal)
   VALUES (in_nombre_evento, in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
 
