@@ -5,16 +5,17 @@
           <label>{{ field.label }}</label>
             @switch (field.type) {
                 @case('text') {
-                    <input type="text" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                    <input [placeholder]="field?.placeholder || ''" type="text" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('number') {
-                    <input type="number" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                    <input [placeholder]="field?.placeholder || ''" type="number" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('email') {
-                    <input type="email" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                    <input [placeholder]="field?.placeholder || ''" type="email" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('select') {
                     <select [(ngModel)]="field.value" [name]="field.name" [required]="field.required">
+                    <option value="" disabled selected>{{field?.placeholder || 'Selecciona...'}}</option>
                       @for(option of field.options; track trackByIndex(option)) {
                           <option [value]="option.value">{{ option.label }}</option>
                       }
@@ -24,7 +25,7 @@
                     <input type="checkbox" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('date') {
-                    <input type="date" [name]="field.name" [(ngModel)]="field.value" [required]="field.required" />
+                    <input [placeholder]="field?.placeholder || ''" type="date" [name]="field.name" [(ngModel)]="field.value" [required]="field.required" />
                 }
             }
         </div>

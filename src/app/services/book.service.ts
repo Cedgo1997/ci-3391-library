@@ -39,5 +39,9 @@ export class BookService {
     return this.http.get(`${this.URL}/consultar_editoriales`);
   }
 
+  getBookCopies(): Observable<any> {
+    return this.http.get(`${this.URL}/consultar_ejemplares`);
+  }
+
 
 }

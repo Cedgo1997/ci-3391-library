@@ -1,20 +1,20 @@
 <div class="menu-container">
+  @if(canGoBack()) {
+  <button class="back-btn" (click)="goBack()">
+    <i class="fa-solid fa-arrow-left"></i> Volver a menú
+  </button>
+  }
   <router-outlet></router-outlet>
   <nav>
     <ul>
       <li>
-        <a routerLink="/user" routerLinkActive="active"
-          >Usuarios</a
-        >
+        <a routerLink="/user" routerLinkActive="active">Usuarios</a>
       </li>
       <li><a routerLink="/books" routerLinkActive="active">Libros</a></li>
       <li>
         <a routerLink="/loan-return" routerLinkActive="active"
           >Préstamo / Devolución</a
         >
-      </li>
-      <li>
-        <a routerLinkActive="active">Editoriales / Sucursales</a>
       </li>
       <li><a routerLink="/events" routerLinkActive="active">Eventos</a></li>
       <li>

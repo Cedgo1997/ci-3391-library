@@ -26,7 +26,26 @@ def usuarios():
     connection = connect_to_db()
     cursor = connection.cursor()
     cursor.execute(f"SELECT cedula, nombre, apellido FROM Persona")
-    users = cursor.fetchall()
+    users = [
+                dict((cursor.description[idx][0], value)
+                    for idx, value in enumerate(row))
+                for row in cursor.fetchall()
+            ]
+    cursor.close()
+    connection.close()
+    return jsonify(users)
+
+@app.route("/usuarios/<string:texto>")
+@cross_origin(supports_credentials=True)
+def usuarios_por_texto(texto):
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT cedula, nombre, apellido FROM Persona WHERE nombre ILIKE '%' || '{texto}' || '%'")
+    users = [
+                dict((cursor.description[idx][0], value)
+                    for idx, value in enumerate(row))
+                for row in cursor.fetchall()
+            ]
     cursor.close()
     connection.close()
     return jsonify(users)
@@ -373,7 +392,11 @@ def filtrar_libros_por_categoria():
         f"SELECT * FROM filtrar_libros_por_categoria('{data['in_categoria']}','{data['in_texto']}')"
     )
 
-    result = cursor.fetchall()
+    result = [
+                dict((cursor.description[idx][0], value)
+                    for idx, value in enumerate(row))
+                for row in cursor.fetchall()
+            ]
 
     cursor.close()
     connection.commit()
@@ -450,6 +473,29 @@ def consultar_editoriales():
 
     except Exception as e:
         return jsonify({"message": "Error al consultar las editoriales"})
+
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
+
+@app.route("/consultar_ejemplares", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def consultar_ejemplares():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(f"SELECT l.titulo, l.isbn, STRING_AGG(e.serial_ejemplar, ', ') AS seriales_ejemplares FROM libro l JOIN ejemplar e ON e.isbn = l.isbn GROUP BY l.titulo, l.isbn;")
+        result = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
+        return json.dumps(result)
+
+    except Exception as e:
+        return jsonify({"message": "Error al consultar los ejemplares"})
 
     finally:
         cursor.close()
