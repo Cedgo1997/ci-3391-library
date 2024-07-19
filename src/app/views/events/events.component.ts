@@ -98,11 +98,8 @@ export class EventsComponent implements OnInit {
 
   handleFormSubmit(formData: any) {
     if (this.tabIndex === 0) {
-      console.log('Registering Assistant:', formData);
-      // Lógica para registrar asistencia al evento
       this.registerAssistant(formData);
     } else {
-      console.log('Create event:', formData);
       this.createEvent(formData);
     }
   }
@@ -116,7 +113,7 @@ export class EventsComponent implements OnInit {
             console.info(response);
             Swal.fire({
               title: '¡Registro exitoso!',
-              text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+              text: response.message,
               icon: 'success',
               confirmButtonText: 'Aceptar',
             });
@@ -141,7 +138,7 @@ export class EventsComponent implements OnInit {
           console.info(response);
           Swal.fire({
             title: '¡Creación exitosa!',
-            text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+            text: response.message,
             icon: 'success',
             confirmButtonText: 'Aceptar',
           });

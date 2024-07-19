@@ -11,7 +11,5 @@ import { UserService } from './services/user.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  constructor(private userService: UserService) {
-    this.userService.getAllUsers().subscribe((resp) => console.log(resp));
-  }
+
 }
