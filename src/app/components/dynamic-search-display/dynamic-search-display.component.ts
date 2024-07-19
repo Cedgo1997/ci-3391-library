@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { SelectFilter } from '../../interfaces/filters.interface';
 
 @Component({
@@ -7,7 +13,7 @@ import { SelectFilter } from '../../interfaces/filters.interface';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dynamic-search-display.component.html',
-  styleUrl: './dynamic-search-display.component.scss'
+  styleUrl: './dynamic-search-display.component.scss',
 })
 export class DynamicSearchDisplayComponent {
   @Output() onSearchEvent: EventEmitter<SelectFilter> = new EventEmitter();
@@ -17,7 +23,7 @@ export class DynamicSearchDisplayComponent {
   @Input() enableSearch = true;
   @Input() enableCategorySearch = true;
 
-  selectedOption: string = ''
+  selectedOption: string = '';
   text = '';
   debounceTimer!: ReturnType<typeof setTimeout>;
 
@@ -27,8 +33,8 @@ export class DynamicSearchDisplayComponent {
     this.debounceTimer = setTimeout(() => {
       this.onSearchEvent.emit({
         text: this.text.trim(),
-        option: this.selectedOption
-      })
+        option: this.selectedOption,
+      });
     }, 500);
   }
 
@@ -38,10 +44,8 @@ export class DynamicSearchDisplayComponent {
     this.debounceTimer = setTimeout(() => {
       this.onSearchEvent.emit({
         text: this.text.trim(),
-        option: this.selectedOption
-      })
+        option: this.selectedOption,
+      });
     }, 500);
-
   }
-
 }

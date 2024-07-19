@@ -1,1 +1,11 @@
-<p>reports works!</p>
+<app-tabs
+  [tabTitles]="['Compradores', 'Organizadores', 'Donantes' ,'Libros más prestados', 'Libros más vendidos']"
+  (tabChanged)="handleTabChange($event)"
+></app-tabs>
+
+<app-dynamic-search-display
+  [title]="title"
+  [data]="tableData()"
+  [enableCategorySearch]="false"
+  [enableSearch]="false"
+  ></app-dynamic-search-display>
