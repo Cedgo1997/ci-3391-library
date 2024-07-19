@@ -9,6 +9,22 @@
   width: 100vw;
   justify-content: space-around;
 
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--color-secondary);
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 500ms ease;
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
   nav {
     width: 40vw;
     margin-bottom: 20px;
