@@ -3,9 +3,10 @@ import { Field } from '../../interfaces/field.interface';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
 import { TabsComponent } from '../../components/tabs/tabs.component';
 import { EventsService } from '../../services/events.service';
-import { DynamicSearchDisplayComponent } from "../../components/dynamic-search-display/dynamic-search-display.component";
+import { DynamicSearchDisplayComponent } from '../../components/dynamic-search-display/dynamic-search-display.component';
 import { FilterEvents } from '../../interfaces/events.interface';
 import { SelectFilter } from '../../interfaces/filters.interface';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-events',
@@ -14,7 +15,6 @@ import { SelectFilter } from '../../interfaces/filters.interface';
   templateUrl: './events.component.html',
   styleUrl: './events.component.scss',
 })
-
 export class EventsComponent implements OnInit {
   eventsService = inject(EventsService);
   // isAssist: boolean = true; // Variable para alternar entre préstamo y devolución
@@ -47,22 +47,36 @@ export class EventsComponent implements OnInit {
 
   registerFields: Field[] = [
     {
+      label: 'Biliotecario',
+      name: 'in_cedula_bibliotecario',
+      type: 'text',
+      value: '',
+      required: true,
+    },
+    {
+      label: 'Nombre del evento',
+      name: 'in_nombre_evento',
+      type: 'text',
+      value: '',
+      required: true,
+    },
+    {
       label: 'Fecha de inicio',
-      name: 'fecha_inicio',
+      name: 'in_fecha_inicio',
       type: 'date',
       value: this.currentDate,
       required: true,
     },
     {
       label: 'Fecha final',
-      name: 'cedula_bibliotecario',
+      name: 'in_fecha_final',
       value: this.futureDate,
       type: 'date',
       required: true,
     },
     {
       label: 'Sucursal',
-      name: 'nombre_sucursal',
+      name: 'in_nombre_sucursal',
       value: '',
       type: 'select',
       options: [],
@@ -71,7 +85,6 @@ export class EventsComponent implements OnInit {
   ];
 
   fields: Field[] = this.eventsFields;
-
 
   ngOnInit(): void {
     this.getAllEvents();
@@ -85,11 +98,61 @@ export class EventsComponent implements OnInit {
 
   handleFormSubmit(formData: any) {
     if (this.tabIndex === 0) {
-      console.log('Registering Assistant:', formData);
-      // Lógica para registrar asistencia al evento
+      this.registerAssistant(formData);
     } else {
-      console.log('Create event:', formData);
-      // Lógica para crear un evento
+      this.createEvent(formData);
+    }
+  }
+
+  registerAssistant(data: any): void {
+    if (data) {
+      this.eventsService
+        .registerAssistant(JSON.stringify({ ...data }))
+        .subscribe({
+          next: (response: { message: string }) => {
+            console.info(response);
+            Swal.fire({
+              title: '¡Registro exitoso!',
+              text: response.message,
+              icon: 'success',
+              confirmButtonText: 'Aceptar',
+            });
+          },
+          error: (error) => {
+            console.error(error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar',
+            });
+          },
+        });
+    }
+  }
+
+  createEvent(data: any): void {
+    if (data) {
+      this.eventsService.createEvent(JSON.stringify({ ...data })).subscribe({
+        next: (response: { message: string }) => {
+          console.info(response);
+          Swal.fire({
+            title: '¡Creación exitosa!',
+            text: response.message,
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+          });
+        },
+        error: (error) => {
+          console.error(error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+          });
+        },
+      });
     }
   }
 
@@ -113,7 +176,7 @@ export class EventsComponent implements OnInit {
         label: sucursal.nombre,
         value: sucursal.nombre,
       }));
-      this.registerFields[2].options = sucursalesOptions;
+      this.registerFields[4].options = sucursalesOptions;
     });
   }
 }

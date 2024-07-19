@@ -20,4 +20,8 @@ export class UserService {
   getAllUsers(): Observable<any> {
     return this.http.get<string>(`${this.URL}/usuarios`);
   }
+
+  getUsersByType(type: string): Observable<any> {
+    return this.http.get(`${this.URL}/usuarios_tipo/${type}`);
+  }
 }

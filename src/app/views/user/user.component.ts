@@ -79,12 +79,12 @@ export class UserComponent implements OnInit {
 
   createUser(data: any): void {
     if (data) {
-      this.userService.createUser(JSON.stringify({ ...data })).subscribe({
+      this.userService.createUser(data).subscribe({
         next: (response: { message: string }) => {
           console.info(response);
           Swal.fire({
             title: '¡Creación exitosa!',
-            text: 'Ocurrió un error inesperado, inténtalo de nuevo más tarde.',
+            text: response.message,
             icon: 'success',
             confirmButtonText: 'Aceptar',
           });

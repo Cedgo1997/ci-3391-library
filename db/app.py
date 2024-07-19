@@ -4,6 +4,7 @@ from flask import request
 from conexion_postgresql import connect_to_db
 from flask_cors import CORS, cross_origin
 from helper.decimal_encoder import Encoder
+
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 # Conexion a la base de datos
@@ -48,8 +49,11 @@ def usuario(cedula):
 def usuarios_tipo(tipo_usuario):
     connection = connect_to_db()
     cursor = connection.cursor()
-    cursor.execute(f"SELECT * FROM '{tipo_usuario}'")
-    users = cursor.fetchall()
+    cursor.execute(f"SELECT * FROM persona p JOIN {tipo_usuario} t ON t.cedula = p.cedula")
+    users = [
+            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
     cursor.close()
     connection.close()
     return jsonify(users)
@@ -69,7 +73,8 @@ def crear_usuario():
 
     # llamada al procedimiento almacenado usando CALL
     cursor.execute(
-        f"CALL crear_usuario('{data['in_cedula']}', '{data['in_nombre']}', '{data['in_apellido']}', '{data['in_fecha_nacimiento']}', '{data['in_correo']}', '{data['in_tipo_usuario']}')")
+        f"CALL crear_usuario('{data['in_cedula']}', '{data['in_nombre']}', '{data['in_apellido']}', '{data['in_fecha_nacimiento']}', '{data['in_correo']}', '{data['in_tipo_usuario']}')"
+    )
 
     cursor.close()
     connection.commit()
@@ -96,6 +101,26 @@ def actualizar_informacion_usuario():
     connection.close()
 
     return jsonify({"message": "Información actualizada exitosamente"})
+
+
+@app.route("/asignar_empleado_a_sucursal", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def asignar_empleado_a_sucursal():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    data = request.json
+
+    cursor.execute(
+        f"CALL asignar_empleado_a_sucursal('{data['in_cedula_empleado']}', '{data['in_nombre_sucursal']}', '{data['in_fecha_inicio']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Empleado asignado exitosamente"})
+
 
 #####################################
 ############### PRESTAMOS ###########
@@ -205,27 +230,34 @@ def reseñas():
     # Está filtrado por aprobado, bibliotecario y lector
     if len(request.args) == 3:
         cursor.execute(
-            f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_bibliotecario = {request.args['cedula_bibliotecario']} AND cedula_lector = {request.args['cedula_lector']}")
+            f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_bibliotecario = {request.args['cedula_bibliotecario']} AND cedula_lector = {request.args['cedula_lector']}"
+        )
     elif len(request.args) == 2:
         if "aprobado" in request.args and "cedula_bibliotecario" in request.args:
             cursor.execute(
-                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_bibliotecario = {request.args['cedula_bibliotecario']}")
+                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_bibliotecario = {request.args['cedula_bibliotecario']}"
+            )
         elif "aprobado" in request.args and "cedula_lector" in request.args:
             cursor.execute(
-                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_lector = {request.args['cedula_lector']}")
+                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']} AND cedula_lector = {request.args['cedula_lector']}"
+            )
         elif "cedula_bibliotecario" in request.args and "cedula_lector" in request.args:
             cursor.execute(
-                f"SELECT * FROM Resena WHERE cedula_bibliotecario = {request.args['cedula_bibliotecario']} AND cedula_lector = {request.args['cedula_lector']}")
+                f"SELECT * FROM Resena WHERE cedula_bibliotecario = {request.args['cedula_bibliotecario']} AND cedula_lector = {request.args['cedula_lector']}"
+            )
     elif len(request.args) == 1:
         if "aprobado" in request.args:
             cursor.execute(
-                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']}")
+                f"SELECT * FROM Resena WHERE aprobado = {request.args['aprobado']}"
+            )
         elif "cedula_bibliotecario" in request.args:
             cursor.execute(
-                f"SELECT * FROM Resena WHERE cedula_bibliotecario = {request.args['cedula_bibliotecario']}")
+                f"SELECT * FROM Resena WHERE cedula_bibliotecario = {request.args['cedula_bibliotecario']}"
+            )
         elif "cedula_lector" in request.args:
             cursor.execute(
-                f"SELECT * FROM Resena WHERE cedula_lector = {request.args['cedula_lector']}")
+                f"SELECT * FROM Resena WHERE cedula_lector = {request.args['cedula_lector']}"
+            )
 
     else:
         cursor.execute(f"SELECT * FROM Resena")
@@ -233,6 +265,7 @@ def reseñas():
     cursor.close()
     connection.close()
     return json.dumps(resenas)
+
 
 #####################################
 ############### LIBROS ##############
@@ -277,9 +310,7 @@ def consultar_categorias_libros():
     connection = connect_to_db()
     cursor = connection.cursor()
 
-    cursor.execute(
-        f"SELECT * FROM categoría"
-    )
+    cursor.execute(f"SELECT * FROM categoría")
 
     result = cursor.fetchall()
 
@@ -294,8 +325,8 @@ def consultar_categorias_libros():
 @cross_origin(supports_credentials=True)
 def generar_reporte_libros_mas_prestados():
     # Obtener parámetros de la consulta
-    in_fecha_inicio = request.args.get('fecha_inicio')
-    in_fecha_final = request.args.get('fecha_final')
+    in_fecha_inicio = request.args.get("fecha_inicio")
+    in_fecha_final = request.args.get("fecha_final")
 
     connection = connect_to_db()
     cursor = connection.cursor()
@@ -348,9 +379,7 @@ def consultar_libros_mas_vendidos():
 
     try:
 
-        cursor.execute(
-            f"SELECT * FROM consultar_libros_mas_vendidos()"
-        )
+        cursor.execute(f"SELECT * FROM consultar_libros_mas_vendidos()")
 
         result = cursor.fetchall()
         return json.dumps(result)
@@ -371,11 +400,11 @@ def consultar_sucursales():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(
-            f"SELECT * FROM sucursal"
-        )
-        result = [dict((cursor.description[idx][0], value)
-                       for idx, value in enumerate(row)) for row in cursor.fetchall()]
+        cursor.execute(f"SELECT * FROM sucursal")
+        result = [
+            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
         return jsonify(result)
 
     except Exception as e:
@@ -394,11 +423,11 @@ def consultar_editoriales():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(
-            f"SELECT * FROM editorial"
-        )
-
-        result = cursor.fetchall()
+        cursor.execute(f"SELECT * FROM editorial")
+        result = [
+            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
         return json.dumps(result)
 
     except Exception as e:
@@ -413,6 +442,7 @@ def consultar_editoriales():
 #####################################
 ############### VENTAS ##############
 #####################################
+
 
 # Ver todas las ventas
 @app.route("/ventas", methods=["GET"])
@@ -455,9 +485,7 @@ def consultar_mejores_compradores():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(
-            f"SELECT * FROM consultar_mejores_compradores()"
-        )
+        cursor.execute(f"SELECT * FROM consultar_mejores_compradores()")
 
         result = cursor.fetchall()
         return json.dumps(result)
@@ -472,6 +500,7 @@ def consultar_mejores_compradores():
 #####################################
 ############### DONACIONES ##########
 #####################################
+
 
 @app.route("/donar_ejemplar", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -500,14 +529,14 @@ def consultar_personas_que_mas_donan_libros():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(
-            f"SELECT * FROM consultar_personas_que_mas_donan_libros()"
-        )
+        cursor.execute(f"SELECT * FROM consultar_personas_que_mas_donan_libros()")
 
         result = cursor.fetchall()
         return json.dumps(result)
     except Exception as e:
-        return jsonify({"message": "Error al consultar las personas que más donan libros"})
+        return jsonify(
+            {"message": "Error al consultar las personas que más donan libros"}
+        )
     finally:
         cursor.close()
         connection.commit()
@@ -517,6 +546,7 @@ def consultar_personas_que_mas_donan_libros():
 #####################################
 ############### EVENTOS #############
 #####################################
+
 
 @app.route("/organizar_evento", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -542,27 +572,32 @@ def organizar_evento():
 @cross_origin(supports_credentials=True)
 def consultar_eventos():
     # Obtener parámetros de la consulta
-    in_fecha_inicio = request.args.get('fecha_inicio')
-    in_fecha_final = request.args.get('fecha_final')
-    in_nombre_sucursal = request.args.get('nombre_sucursal')
-    print(request.args.get('fecha_inicio'))
+    in_fecha_inicio = request.args.get("fecha_inicio")
+    in_fecha_final = request.args.get("fecha_final")
+    in_nombre_sucursal = request.args.get("nombre_sucursal")
+    print(request.args.get("fecha_inicio"))
     connection = connect_to_db()
     cursor = connection.cursor()
 
     try:
         # Construir la consulta con los parámetros
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM consultar_eventos(%s, %s, %s)
-        """, (in_fecha_inicio, in_fecha_final, in_nombre_sucursal))
+        """,
+            (in_fecha_inicio, in_fecha_final, in_nombre_sucursal),
+        )
 
-        result = [dict((cursor.description[idx][0], value)
-                       for idx, value in enumerate(row)) for row in cursor.fetchall()]
+        result = [
+            dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
 
         return jsonify(result)
 
     except Exception as e:
         print(e)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
     finally:
         cursor.close()
@@ -633,5 +668,5 @@ def consultar_bibliotecarios_que_organizan_mas_eventos():
         connection.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(port=3000, debug=True)

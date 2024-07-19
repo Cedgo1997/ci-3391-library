@@ -358,12 +358,14 @@ BEGIN
     RAISE EXCEPTION 'El usuario debe ser mayor de edad.';
   END IF;
 
-  INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
+  INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo)
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo);
 
   IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
     VALUES (in_cedula, in_correo);
+    INSERT INTO Empleado(cedula, cargo)
+    VALUES (in_cedula, 'Bibliotecario');
   ELSIF in_tipo_usuario = 'Lector' THEN
     INSERT INTO Lector(cedula)
     VALUES (in_cedula);
@@ -414,6 +416,35 @@ BEGIN
   VALUES (in_serial_ejemplar, in_cedula_bibliotecario, in_cedula_lector, in_fecha_inicio, NULL, v_fecha_final);
 
   RAISE NOTICE 'Prestamo realizado exitosamente.';
+END $$;
+
+CREATE OR REPLACE PROCEDURE asignar_empleado_a_sucursal(
+  in_cedula_empleado VARCHAR(12),
+  in_nombre_sucursal VARCHAR(100),
+  in_fecha_ingreso DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM Empleado WHERE cedula = in_cedula_empleado) THEN
+    RAISE EXCEPTION 'El empleado no existe.';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM Sucursal WHERE nombre = in_nombre_sucursal) THEN
+    RAISE EXCEPTION 'La sucursal no existe.';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM Trabaja
+    WHERE cedula_empleado = in_cedula_empleado AND nombre_sucursal = in_nombre_sucursal AND fecha_retiro IS NULL
+  ) THEN
+    RAISE EXCEPTION 'El empleado ya esta asignado a la sucursal.';
+  END IF;
+
+  INSERT INTO Trabaja(cedula_empleado, nombre_sucursal, fecha_ingreso, fecha_retiro)
+  VALUES (in_cedula_empleado, in_nombre_sucursal, in_fecha_ingreso, NULL);
+
+  RAISE NOTICE 'Empleado asignado a la sucursal exitosamente.';
 END $$;
 
 CREATE OR REPLACE PROCEDURE realizar_devolucion(
@@ -510,12 +541,7 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario no existe.';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1 FROM Trabaja
-    WHERE cedula_empleado = in_cedula_bibliotecario AND fecha_ingreso <= CURRENT_DATE - INTERVAL '2 years'
-  ) THEN
-    RAISE EXCEPTION 'El bibliotecario no tiene 2 años de antiguedad.';
-  END IF;
+  /* LE QUITE LA RESTRICCION DE TIEMPO */
 
   IF NOT EXISTS (SELECT 1 FROM Sucursal WHERE nombre = in_nombre_sucursal) THEN
     RAISE EXCEPTION 'La sucursal no existe.';
@@ -532,25 +558,18 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario ya tiene un evento en esa fecha.';
   END IF;
 
-  IF EXISTS (
-    SELECT 1 FROM Realiza
-    WHERE nombre = in_nombre_sucursal AND fecha_inicio <= in_fecha_final AND fecha_final >= in_fecha_inicio
-  ) THEN
-    RAISE EXCEPTION 'La sucursal ya tiene un evento en esa fecha.';
-  END IF;
-
-  INSERT INTO Evento(fecha_inicio, fecha_final, nombre_sucursal)
+  INSERT INTO Evento(nombre, fecha_inicio, fecha_final, nombre_sucursal)
   VALUES (in_nombre_evento, in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
-  RETURNING pk_evento INTO var_pk_evento;
+
+  var_pk_evento := (SELECT pk_evento FROM Evento WHERE nombre = in_nombre_evento AND fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final AND nombre_sucursal = in_nombre_sucursal);
 
   INSERT INTO Organiza(cedula, fecha_inicio, fecha_final, pk_evento)
-  VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, var_pk_evento;)
+  VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, var_pk_evento);
 
   INSERT INTO Realiza(nombre, pk_evento)
   VALUES (in_nombre_sucursal, var_pk_evento);
 
   RAISE NOTICE 'Evento organizado exitosamente';
-
 END $$;
 
 CREATE OR REPLACE PROCEDURE registrar_nuevo_libro(
@@ -730,7 +749,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER tr_devoluciones_tardias
+CREATE OR REPLACE TRIGGER tr_devoluciones_tardias
 AFTER INSERT ON Presta
 FOR EACH STATEMENT
 EXECUTE FUNCTION fn_suspender_usuario_por_devoluciones_tardias();
