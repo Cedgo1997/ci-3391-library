@@ -4,6 +4,8 @@ import { BookService } from '../../services/book.service';
 import { Subscription } from 'rxjs';
 import { TabsComponent } from '../../components/tabs/tabs.component';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
+import { UserService } from '../../services/user.service';
+import { Field } from '../../interfaces/field.interface';
 
 @Component({
   selector: 'app-books',
@@ -15,6 +17,7 @@ import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form
 export class BooksComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
   private bookService = inject(BookService);
+  private userService = inject(UserService);
   booksData = signal([]);
   booksCategories = signal<string[]>([]);
   tabs = signal(0);
@@ -35,11 +38,12 @@ export class BooksComponent implements OnInit, OnDestroy {
       required: true
     },
     {
-      type: 'text',
+      type: 'select',
       label: 'Autor ',
       name: 'in_autor',
       value: '',
-      required: true
+      required: true,
+      options: []
     },
     {
       type: 'number',
@@ -129,18 +133,30 @@ export class BooksComponent implements OnInit, OnDestroy {
       })
     } else {
       this.bookService.getBranch().subscribe(branches => {
-        const index = this.fields.findIndex((field: any) => field.name === 'in_nombre_sucursal');
-        if (index) {
+        const index = this.fields.findIndex((field: Field) => field.name === 'in_nombre_sucursal');
+        if (index >= 0) {
           this.fields[index].options = branches.map((branch: any) => ({ value: branch.nombre, label: branch.nombre }));
         }
       });
 
       this.bookService.getPublisher().subscribe(publishers => {
-        const index = this.fields.findIndex((field: any) => field.name === 'in_nombre_editorial');
-        if (index) {
+        const index = this.fields.findIndex((field: Field) => field.name === 'in_nombre_editorial');
+        if (index >= 0) {
           this.fields[index].options = publishers.map((publisher: any) => ({ value: publisher.nombre, label: publisher.nombre }));
         }
       })
+
+      this.userService.getUsersByType('Autor').subscribe(
+        (authors) => {
+          const index = this.fields.findIndex((field: Field) => field.name === 'in_autor');
+          if (index >= 0) {
+            this.fields[index].options = authors.map((author: any) => ({
+              value: author.cedula,
+              label: `${author.nombre} ${author.apellido}`
+            }))
+          }
+        }
+      )
     }
   }
 
