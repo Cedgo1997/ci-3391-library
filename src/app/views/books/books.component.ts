@@ -130,7 +130,6 @@ export class BooksComponent implements OnInit, OnDestroy {
     } else {
       this.bookService.getBranch().subscribe(branches => {
         const index = this.fields.findIndex((field: any) => field.name === 'in_nombre_sucursal');
-        console.log(branches.map((branch: any) => ({ value: branch.nombre, label: branch.label })))
         if (index) {
           this.fields[index].options = branches.map((branch: any) => ({ value: branch.nombre, label: branch.nombre }));
         }
@@ -146,7 +145,6 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   addNewBook(bookData: any): void {
-    console.log(bookData)
     this.bookService.addBook(bookData).subscribe({
       next: (response) => {
         console.info(response);

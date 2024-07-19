@@ -98,11 +98,8 @@ export class EventsComponent implements OnInit {
 
   handleFormSubmit(formData: any) {
     if (this.tabIndex === 0) {
-      console.log('Registering Assistant:', formData);
-      // Lógica para registrar asistencia al evento
       this.registerAssistant(formData);
     } else {
-      console.log('Create event:', formData);
       this.createEvent(formData);
     }
   }

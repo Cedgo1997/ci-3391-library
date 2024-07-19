@@ -33,7 +33,6 @@ export class DynamicSearchDisplayComponent {
   }
 
   triggerSelection(event: Event): void {
-    console.log(event)
     this.selectedOption = (event.target as HTMLSelectElement).value;
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
