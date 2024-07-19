@@ -131,7 +131,7 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.bookService.getBestSellerBooks().subscribe((books) => {
         this.booksData.set(books);
       })
-    } else {
+    } else if (this.tabs() === 2) {
       this.bookService.getBranch().subscribe(branches => {
         const index = this.fields.findIndex((field: Field) => field.name === 'in_nombre_sucursal');
         if (index >= 0) {
@@ -157,6 +157,10 @@ export class BooksComponent implements OnInit, OnDestroy {
           }
         }
       )
+    } else {
+      this.bookService.getBookCopies().subscribe((copies) => {
+        this.booksData.set(copies);
+      })
     }
   }
 
