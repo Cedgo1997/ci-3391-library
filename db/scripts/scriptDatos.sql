@@ -19,6 +19,14 @@ VALUES
   ('2222222224', 'Patricia', 'Flores', '1988-04-04', TRUE, 'patricia.flores@example.com'),
   ('2222222225', 'Ricardo', 'Hernandez', '1989-05-05', TRUE, 'ricardo.hernandez@example.com');
 
+INSERT INTO Empleado (cedula, cargo)
+VALUES
+  ('2222222221', 'Bibliotecario'),
+  ('2222222222', 'Bibliotecario'),
+  ('2222222223', 'Bibliotecario'),
+  ('2222222224', 'Bibliotecario'),
+  ('2222222225', 'Bibliotecario');
+
 INSERT INTO Persona (cedula, nombre, apellido, fecha_nacimiento, activo, correo)
 VALUES
   ('3333333331', 'Julio', 'Morales', '1980-01-01', TRUE, 'julio.morales@example.com'),
@@ -167,3 +175,11 @@ VALUES
 ('9788432212218', 'Romance'),
 ('9788498381231', 'Terror'),
 ('9788423344570', 'Psicología');
+
+INSERT INTO Trabaja (cedula_empleado, nombre_sucursal, fecha_ingreso)
+VALUES 
+  ('2222222221', 'Sucursal Centro', '2020-01-01'),
+  ('2222222222', 'Sucursal Norte', '2013-01-02'),
+  ('2222222223', 'Sucursal Este', '2022-01-03'),
+  ('2222222224', 'Sucursal Sur', '2000-01-04'),
+  ('2222222225', 'Sucursal Oeste', '2024-01-05');

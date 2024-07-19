@@ -42,6 +42,7 @@ def usuario(cedula):
     connection.close()
     return jsonify(user)
 
+
 @app.route("/usuarios_tipo/<string:tipo_usuario>")
 @cross_origin(supports_credentials=True)
 def usuarios_tipo(tipo_usuario):
@@ -52,6 +53,7 @@ def usuarios_tipo(tipo_usuario):
     cursor.close()
     connection.close()
     return jsonify(users)
+
 
 @app.route("/usuarios_crear", methods=["POST"])
 @cross_origin(supports_credentials=True)
@@ -435,7 +437,7 @@ def vender_ejemplar():
     data = request.json
 
     cursor.execute(
-        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_nro_facturacion']}', '{data['in_payment_method']}')"
+        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_payment_method']}')"
     )
 
     cursor.close()
