@@ -35,6 +35,21 @@ def usuarios():
     connection.close()
     return jsonify(users)
 
+@app.route("/usuarios/<string:texto>")
+@cross_origin(supports_credentials=True)
+def usuarios_por_texto(texto):
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT cedula, nombre, apellido FROM Persona WHERE nombre ILIKE '%' || '{texto}' || '%'")
+    users = [
+                dict((cursor.description[idx][0], value)
+                    for idx, value in enumerate(row))
+                for row in cursor.fetchall()
+            ]
+    cursor.close()
+    connection.close()
+    return jsonify(users)
+
 
 @app.route("/usuarios/<string:cedula>")
 @cross_origin(supports_credentials=True)

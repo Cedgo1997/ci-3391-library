@@ -1,10 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
-import Swal from 'sweetalert2';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
 import { DynamicSearchDisplayComponent } from '../../components/dynamic-search-display/dynamic-search-display.component';
 import { TabsComponent } from '../../components/tabs/tabs.component';
 import { UserService } from '../../services/user.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-user',
@@ -101,14 +101,23 @@ export class UserComponent {
   handleTabChange(index: number): void {
     this.tabs.set(index);
     if (this.tabs() === 1) {
-      this.getAllUsers();
+      this.getAllUsers('');
     }
   }
 
-  getAllUsers(): void {
-    this.userService.getAllUsers().subscribe((users) => {
-      this.usersData.set(users);
-    });
+  getAllUsers(text: string): void {
+    if (text) {
+      this.userService.getUsersByText(text).subscribe((users) => {
+        this.usersData.set(users);
+      });
+    } else {
+      console.log('hola')
+      this.userService.getAllUsers().subscribe((users) => {
+        this.usersData.set(users);
+      })
+    }
   }
-  handleSearchUser(data: { text: string; option?: string }): void { }
+  handleSearchUser(data: { text: string; option?: string }): void {
+    this.getAllUsers(data.text.trim());
+  }
 }

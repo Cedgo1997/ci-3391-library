@@ -21,6 +21,10 @@ export class UserService {
     return this.http.get<string>(`${this.URL}/usuarios`);
   }
 
+  getUsersByText(text: string): Observable<any> {
+    return this.http.get<string>(`${this.URL}/usuarios/${text}`);
+  }
+
   getUsersByType(type: string): Observable<any> {
     return this.http.get(`${this.URL}/usuarios_tipo/${type}`);
   }
