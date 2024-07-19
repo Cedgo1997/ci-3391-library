@@ -364,6 +364,8 @@ BEGIN
   IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
     VALUES (in_cedula, in_correo);
+    INSERT INTO Empleado(cedula, cargo)
+    VALUES (in_cedula, 'Bibliotecario');
   ELSIF in_tipo_usuario = 'Lector' THEN
     INSERT INTO Lector(cedula)
     VALUES (in_cedula);
