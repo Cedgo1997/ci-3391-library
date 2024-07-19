@@ -358,8 +358,8 @@ BEGIN
     RAISE EXCEPTION 'El usuario debe ser mayor de edad.';
   END IF;
 
-  INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo, id_donante)
-  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo, NULL);
+  INSERT INTO Persona(cedula, nombre, apellido, fecha_nacimiento, correo)
+  VALUES (in_cedula, in_nombre, in_apellido, in_fecha_nacimiento, in_correo);
 
   IF in_tipo_usuario = 'Bibliotecario' THEN
     INSERT INTO Bibliotecario(cedula, correo)
@@ -541,12 +541,7 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario no existe.';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1 FROM Trabaja
-    WHERE cedula_empleado = in_cedula_bibliotecario AND fecha_ingreso <= CURRENT_DATE - INTERVAL '2 years'
-  ) THEN
-    RAISE EXCEPTION 'El bibliotecario no tiene 2 años de antiguedad.';
-  END IF;
+  /* LE QUITE LA RESTRICCION DE TIEMPO */
 
   IF NOT EXISTS (SELECT 1 FROM Sucursal WHERE nombre = in_nombre_sucursal) THEN
     RAISE EXCEPTION 'La sucursal no existe.';
@@ -563,18 +558,18 @@ BEGIN
     RAISE EXCEPTION 'El bibliotecario ya tiene un evento en esa fecha.';
   END IF;
 
-  INSERT INTO Evento(fecha_inicio, fecha_final, nombre_sucursal)
+  INSERT INTO Evento(nombre, fecha_inicio, fecha_final, nombre_sucursal)
   VALUES (in_nombre_evento, in_fecha_inicio, in_fecha_final, in_nombre_sucursal);
-  RETURNING pk_evento INTO var_pk_evento;
+
+  var_pk_evento := (SELECT pk_evento FROM Evento WHERE nombre = in_nombre_evento AND fecha_inicio = in_fecha_inicio AND fecha_final = in_fecha_final AND nombre_sucursal = in_nombre_sucursal);
 
   INSERT INTO Organiza(cedula, fecha_inicio, fecha_final, pk_evento)
-  VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, var_pk_evento;)
+  VALUES (in_cedula_bibliotecario, in_fecha_inicio, in_fecha_final, var_pk_evento);
 
   INSERT INTO Realiza(nombre, pk_evento)
   VALUES (in_nombre_sucursal, var_pk_evento);
 
   RAISE NOTICE 'Evento organizado exitosamente';
-
 END $$;
 
 CREATE OR REPLACE PROCEDURE registrar_nuevo_libro(
@@ -754,7 +749,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER tr_devoluciones_tardias
+CREATE OR REPLACE TRIGGER tr_devoluciones_tardias
 AFTER INSERT ON Presta
 FOR EACH STATEMENT
 EXECUTE FUNCTION fn_suspender_usuario_por_devoluciones_tardias();
