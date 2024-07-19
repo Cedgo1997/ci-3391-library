@@ -190,14 +190,34 @@ def realizar_devolucion():
     return jsonify({"message": "Devolución realizada exitosamente"})
 
 
-@app.route("/reseñas_sin_aprobar", methods=["GET"])
+@app.route("/resenas_sin_aprobar", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def reseñas_sin_aprobar():
 
     connection = connect_to_db()
     cursor = connection.cursor()
     cursor.execute(f"SELECT * FROM Resena WHERE aprobado = false")
-    resenas = cursor.fetchall()
+    resenas = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
+    cursor.close()
+    connection.close()
+    return json.dumps(resenas)
+
+@app.route("/resenas_aprobadas", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def reseñas_aprobadas():
+
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM Resena WHERE aprobado = true")
+    resenas = [
+            dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+            for row in cursor.fetchall()
+        ]
     cursor.close()
     connection.close()
     return json.dumps(resenas)

@@ -5,6 +5,8 @@ export interface Field {
     value: any;
     required: boolean;
     placeholder?: string;
+    max?: number;
+    min?: number;
     options?: Options[];
 }
 

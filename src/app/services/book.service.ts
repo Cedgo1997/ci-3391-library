@@ -43,5 +43,19 @@ export class BookService {
     return this.http.get(`${this.URL}/consultar_ejemplares`);
   }
 
+  sendReview(data: any): Observable<any> {
+    return this.http.post(`${this.URL}/ingresar_resena`, data);
+  }
 
+  approveReview(data: any): Observable<any> {
+    return this.http.post(`${this.URL}/aprobar_resena`, data);
+  }
+
+  getUnapprovedReviews(): Observable<any> {
+    return this.http.get(`${this.URL}/resenas_sin_aprobar`);
+  }
+  
+  getApprovedReviews(): Observable<any> {
+    return this.http.get(`${this.URL}/resenas_aprobadas`);
+  }
 }

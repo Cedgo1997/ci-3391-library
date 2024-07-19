@@ -8,7 +8,7 @@
                     <input [placeholder]="field?.placeholder || ''" type="text" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('number') {
-                    <input [placeholder]="field?.placeholder || ''" type="number" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
+                    <input [max]="field?.max || 524288" [min]="field?.min || 0" [placeholder]="field?.placeholder || ''" type="number" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />
                 }
                 @case('email') {
                     <input [placeholder]="field?.placeholder || ''" type="email" [(ngModel)]="field.value" [name]="field.name" [required]="field.required" />

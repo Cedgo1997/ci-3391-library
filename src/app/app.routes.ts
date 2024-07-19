@@ -6,6 +6,7 @@ import { SalesDonationsComponent } from './views/sales-donations/sales-donations
 import { ReportsComponent } from './views/reports/reports.component';
 import { BooksComponent } from './views/books/books.component';
 import { UserComponent } from './views/user/user.component';
+import { ReviewsComponent } from './views/reviews/reviews.component';
 
 export const ROUTES: Routes = [
     { path: 'events', component: EventsComponent },
@@ -14,6 +15,7 @@ export const ROUTES: Routes = [
     { path: 'reports', component: ReportsComponent },
     { path: 'sales-donations', component: SalesDonationsComponent },
     { path: 'books', component: BooksComponent },
+    { path: 'reviews', component: ReviewsComponent },
     { path: '', component: WelcomeComponent },
     { path: '**', redirectTo: '' }
 ]

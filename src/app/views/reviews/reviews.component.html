@@ -1,0 +1,25 @@
+<app-tabs
+  [tabTitles]="['Crear', 'Aprobar', 'Sin aprobar', 'Aprobadas']"
+  (tabChanged)="handleChangeTabs($event)"
+></app-tabs>
+
+@switch (currentTab) { @case (0) {
+<app-dynamic-form
+  [title]="'Reseñar libro'"
+  [fields]="createFields"
+  (sendFormData)="submitReview($event)"
+></app-dynamic-form>
+} @case (1) {
+<app-dynamic-form
+  [title]="'Aprobar reseñas'"
+  [fields]="approveFields"
+  (sendFormData)="approveReview($event)"
+></app-dynamic-form>
+} @default {
+<app-dynamic-search-display
+  [title]="currentTab === 2 ? 'Reseñas sin aprobar' : 'Reseñas aprobadas'"
+  [data]="reviews()"
+  [enableCategorySearch]="false"
+  [enableSearch]="false"
+></app-dynamic-search-display>
+} }
