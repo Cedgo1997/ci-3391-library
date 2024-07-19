@@ -97,6 +97,25 @@ def actualizar_informacion_usuario():
 
     return jsonify({"message": "Información actualizada exitosamente"})
 
+@app.route("/asignar_empleado_a_sucursal", methods=["POST"])
+@cross_origin(supports_credentials=True)
+def asignar_empleado_a_sucursal():
+    connection = connect_to_db()
+    cursor = connection.cursor()
+
+    data = request.json
+
+    cursor.execute(
+        f"CALL asignar_empleado_a_sucursal('{data['in_cedula_empleado']}', '{data['in_nombre_sucursal']}', '{data['in_fecha_inicio']}')"
+    )
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Empleado asignado exitosamente"})
+
+
 #####################################
 ############### PRESTAMOS ###########
 #####################################

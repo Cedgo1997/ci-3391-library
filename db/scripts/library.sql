@@ -418,6 +418,36 @@ BEGIN
   RAISE NOTICE 'Prestamo realizado exitosamente.';
 END $$;
 
+# asignar empleado a sucursal
+CREATE OR REPLACE PROCEDURE asignar_empleado_a_sucursal(
+  in_cedula_empleado VARCHAR(12),
+  in_nombre_sucursal VARCHAR(100),
+  in_fecha_ingreso DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM Empleado WHERE cedula = in_cedula_empleado) THEN
+    RAISE EXCEPTION 'El empleado no existe.';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM Sucursal WHERE nombre = in_nombre_sucursal) THEN
+    RAISE EXCEPTION 'La sucursal no existe.';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM Trabaja
+    WHERE cedula_empleado = in_cedula_empleado AND nombre_sucursal = in_nombre_sucursal AND fecha_retiro IS NULL
+  ) THEN
+    RAISE EXCEPTION 'El empleado ya esta asignado a la sucursal.';
+  END IF;
+
+  INSERT INTO Trabaja(cedula_empleado, nombre_sucursal, fecha_ingreso, fecha_retiro)
+  VALUES (in_cedula_empleado, in_nombre_sucursal, in_fecha_ingreso, NULL);
+
+  RAISE NOTICE 'Empleado asignado a la sucursal exitosamente.';
+END $$;
+
 CREATE OR REPLACE PROCEDURE realizar_devolucion(
   in_serial_ejemplar VARCHAR(10),
   in_cedula_bibliotecario VARCHAR(12),
