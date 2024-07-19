@@ -418,7 +418,6 @@ BEGIN
   RAISE NOTICE 'Prestamo realizado exitosamente.';
 END $$;
 
-# asignar empleado a sucursal
 CREATE OR REPLACE PROCEDURE asignar_empleado_a_sucursal(
   in_cedula_empleado VARCHAR(12),
   in_nombre_sucursal VARCHAR(100),
