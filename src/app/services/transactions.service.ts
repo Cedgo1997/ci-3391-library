@@ -20,4 +20,8 @@ export class TransactionsService {
     return this.http.post(`${this.URL}/donar_ejemplar`, data);
   }
 
+  generateBookLoan(data: any): Observable<any> {
+    return this.http.post(`${this.URL}/realizar_prestamo`, data);
+  }
+
 }

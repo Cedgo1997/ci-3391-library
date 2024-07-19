@@ -15,14 +15,14 @@ import { Field } from '../../interfaces/field.interface';
   styleUrl: './books.component.scss'
 })
 export class BooksComponent implements OnInit, OnDestroy {
-  subscriptions: Subscription = new Subscription();
   private bookService = inject(BookService);
   private userService = inject(UserService);
+  subscriptions: Subscription = new Subscription();
   booksData = signal([]);
   booksCategories = signal<string[]>([]);
   tabs = signal(0);
 
-  fields: any = [
+  fields: Field[] = [
     {
       type: 'text',
       label: 'ISBN',
@@ -126,7 +126,7 @@ export class BooksComponent implements OnInit, OnDestroy {
   handleTabChange(index: number): void {
     this.tabs.set(index);
     if (this.tabs() === 0) {
-      this.booksData.set([]);
+      this.getBooks({ text: '', option: '' });
     } else if (this.tabs() === 1) {
       this.bookService.getBestSellerBooks().subscribe((books) => {
         this.booksData.set(books);

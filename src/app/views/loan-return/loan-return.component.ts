@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
-import { Field } from '../../interfaces/field.interface';
+import { Component, inject } from '@angular/core';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
 import { TabsComponent } from "../../components/tabs/tabs.component";
+import { Field } from '../../interfaces/field.interface';
+import { TransactionsService } from '../../services/transactions.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-loan-return',
@@ -11,6 +13,7 @@ import { TabsComponent } from "../../components/tabs/tabs.component";
   styleUrl: './loan-return.component.scss',
 })
 export class LoanReturnComponent {
+  transactionService = inject(TransactionsService);
   isLoan: boolean = true; // Variable para alternar entre préstamo y devolución
 
   // Obtener la fecha actual
@@ -99,8 +102,27 @@ export class LoanReturnComponent {
 
   handleFormSubmit(formData: any) {
     if (this.isLoan) {
-      console.log('Registering loan:', formData);
-      // Lógica para registrar un préstamo
+      this.transactionService.generateBookLoan(formData).subscribe(
+        {
+          next: (response) => {
+            Swal.fire({
+              title: '¡Préstamo exitoso!',
+              text: response.message,
+              icon: 'success',
+              confirmButtonText: 'Aceptar',
+            });
+          },
+          error: (error) => {
+            console.error(error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Ocurrió un error inesperado, inténtelo de nuevo más tarde.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar',
+            });
+          }
+        }
+      )
     } else {
       console.log('Registering return:', formData);
       // Lógica para registrar una devolución

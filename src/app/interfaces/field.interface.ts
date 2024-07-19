@@ -4,6 +4,7 @@ export interface Field {
     name: string;
     value: any;
     required: boolean;
+    placeholder?: string;
     options?: Options[];
 }
 
