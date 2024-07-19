@@ -128,7 +128,7 @@ export class LoanReturnComponent {
         {
           next: (response) => {
             Swal.fire({
-              title: '¡Préstamo exitoso!',
+              title: '¡Devolución exitosa!',
               text: response.message,
               icon: 'success',
               confirmButtonText: 'Aceptar',
