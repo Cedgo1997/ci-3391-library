@@ -435,9 +435,10 @@ def vender_ejemplar():
 
     # Obtener los datos desde el body del request
     data = request.json
+    lista = data['in_serial_ejemplar']
 
     cursor.execute(
-        f"CALL vender_ejemplar('{data['in_serial_ejemplar']}','{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_payment_method']}')"
+        f"CALL vender_ejemplar(ARRAY{lista},'{data['in_cedula_comprador']}', '{data['in_fecha_venta']}', '{data['in_payment_method']}')"
     )
 
     cursor.close()

@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS Ejemplar(
 
 CREATE TABLE IF NOT EXISTS Factura(
   nro_facturacion INT GENERATED ALWAYS AS IDENTITY,
-  fecha DATE NOT NULL,
+  fecha TIMESTAMP NOT NULL,
   payment_method payment_method,
   PRIMARY KEY (nro_facturacion)
 );
@@ -609,7 +609,7 @@ END $$;
 
 CREATE OR REPLACE PROCEDURE vender_ejemplar(
     in_serial_ejemplar VARCHAR[],
-    in_cedula_comprador INT,
+    in_cedula_comprador VARCHAR,
     in_fecha_venta DATE,
     in_payment_method payment_method
 )
@@ -617,34 +617,34 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   serial_actual VARCHAR;
-  nro_facturacion INT;
+  var_nro_facturacion INT;
+  actual_time TIMESTAMP;
 BEGIN
     
   IF EXISTS (
     SELECT serial_ejemplar FROM Dona
-    WHERE serial_ejemplar = in_serial_ejemplar
+    WHERE serial_ejemplar = in_serial_ejemplar[0]
   ) THEN
       RAISE EXCEPTION 'El libro es donado, por lo tanto el ejemplar no puede ser vendido';
   END IF;
 
-  IF EXISTS (
-    SELECT serial_ejemplar FROM Vende
-    WHERE serial_ejemplar = in_serial_ejemplar
-  ) THEN
-      RAISE EXCEPTION 'El ejemplar ya ha sido vendido';
-  END IF;
-
-
+  actual_time := in_fecha_venta + current_time;
   -- Esta función se llama individualmente por Venta, así que creamos la factura
-  INSERT INTO Factura(in_fecha_venta, in_payment_method)
-  VALUES (in_fecha_venta, in_payment_method)
-  RETURNING nro_facturacion;
+  INSERT INTO Factura(fecha, payment_method)
+  VALUES (actual_time, in_payment_method)
+  RETURNING nro_facturacion into var_nro_facturacion;
 
   -- Iterar sobre cada serial en la lista de seriales de ejemplares
-  FOREACH serial_actual IN ARRAY seriales_ejemplares
+  FOREACH serial_actual IN ARRAY in_serial_ejemplar
   LOOP
+      IF EXISTS (
+        SELECT serial_ejemplar FROM Vende
+        WHERE serial_ejemplar = serial_actual
+      ) THEN
+          RAISE EXCEPTION 'El ejemplar ya ha sido vendido';
+      END IF;
       INSERT INTO Vende(serial_ejemplar, nro_facturacion, cedula)
-      VALUES (in_serial_ejemplar, in_nro_facturacion, in_cedula_comprador);
+      VALUES (serial_actual, var_nro_facturacion, in_cedula_comprador);
   END LOOP;
   
   RAISE NOTICE 'Venta registrada exitosamente.';
@@ -680,7 +680,7 @@ END $$;
 
 
 CREATE OR REPLACE PROCEDURE actualizar_informacion_usuario(
-    in_cedula_persona INT,
+    in_cedula_persona VARCHAR,
     in_nombre VARCHAR,
     in_apellido VARCHAR,
     in_fecha_nacimiento DATE,
