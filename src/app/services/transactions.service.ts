@@ -24,4 +24,7 @@ export class TransactionsService {
     return this.http.post(`${this.URL}/realizar_prestamo`, data);
   }
 
+  generateBookReturn(data: any): Observable<any> {
+    return this.http.post(`${this.URL}/realizar_prestamo`, data);
+  }
 }

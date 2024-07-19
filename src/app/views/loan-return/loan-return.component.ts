@@ -27,35 +27,35 @@ export class LoanReturnComponent {
   loanFields: Field[] = [
     {
       label: 'Serial Ejemplar',
-      name: 'serial_ejemplar',
+      name: 'in_serial_ejemplar',
       type: 'text',
       value: '',
       required: true,
     },
     {
       label: 'Cédula Bibliotecario',
-      name: 'cedula_bibliotecario',
+      name: 'in_cedula_bibliotecario',
       value: '',
       type: 'text',
       required: true,
     },
     {
       label: 'Cédula Lector',
-      name: 'cedula_lector',
+      name: 'in_cedula_lector',
       type: 'text',
       value: '',
       required: true,
     },
     {
       label: 'Fecha Inicio',
-      name: 'fecha_inicio',
+      name: 'in_fecha_inicio',
       type: 'date',
       value: this.currentDate,
       required: true,
     },
     {
       label: 'Fecha Final',
-      name: 'fecha_final',
+      name: 'in_fecha_final',
       type: 'date',
       value: this.futureDate,
       required: true,
@@ -65,28 +65,28 @@ export class LoanReturnComponent {
   returnFields: Field[] = [
     {
       label: 'Serial Ejemplar',
-      name: 'serial_ejemplar',
+      name: 'in_serial_ejemplar',
       type: 'text',
       value: '',
       required: true,
     },
     {
       label: 'Cédula Bibliotecario',
-      name: 'cedula_bibliotecario',
+      name: 'in_cedula_bibliotecario',
       value: '',
       type: 'text',
       required: true,
     },
     {
       label: 'Cédula Lector',
-      name: 'cedula_lector',
+      name: 'in_cedula_lector',
       type: 'text',
       value: '',
       required: true,
     },
     {
       label: 'Fecha Entrega',
-      name: 'fecha_entrega',
+      name: 'in_fecha_entrega',
       type: 'date',
       value: this.currentDate,
       required: true,
@@ -124,8 +124,27 @@ export class LoanReturnComponent {
         }
       )
     } else {
-      console.log('Registering return:', formData);
-      // Lógica para registrar una devolución
+      this.transactionService.generateBookReturn(formData).subscribe(
+        {
+          next: (response) => {
+            Swal.fire({
+              title: '¡Préstamo exitoso!',
+              text: response.message,
+              icon: 'success',
+              confirmButtonText: 'Aceptar',
+            });
+          },
+          error: (error) => {
+            console.error(error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Ocurrió un error inesperado, inténtelo de nuevo más tarde.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar',
+            });
+          }
+        }
+      )
     }
   }
 }
