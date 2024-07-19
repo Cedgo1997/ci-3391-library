@@ -52,4 +52,8 @@ export class EventsService {
   getAllSucursales(): Observable<any> {
     return this.http.get<any>(`${this.URL}/consultar_sucursales`);
   }
+
+  getAllLibrarians(): Observable<any> {
+    return this.http.get<any>(`${this.URL}/usuarios_tipo/Bibliotecario`);
+  }
 }

@@ -27,25 +27,27 @@ def usuarios():
     cursor = connection.cursor()
     cursor.execute(f"SELECT cedula, nombre, apellido FROM Persona")
     users = [
-                dict((cursor.description[idx][0], value)
-                    for idx, value in enumerate(row))
-                for row in cursor.fetchall()
-            ]
+        dict((cursor.description[idx][0], value)
+             for idx, value in enumerate(row))
+        for row in cursor.fetchall()
+    ]
     cursor.close()
     connection.close()
     return jsonify(users)
+
 
 @app.route("/usuarios/<string:texto>")
 @cross_origin(supports_credentials=True)
 def usuarios_por_texto(texto):
     connection = connect_to_db()
     cursor = connection.cursor()
-    cursor.execute(f"SELECT cedula, nombre, apellido FROM Persona WHERE nombre ILIKE '%' || '{texto}' || '%'")
+    cursor.execute(
+        f"SELECT cedula, nombre, apellido FROM Persona WHERE nombre ILIKE '%' || '{texto}' || '%'")
     users = [
-                dict((cursor.description[idx][0], value)
-                    for idx, value in enumerate(row))
-                for row in cursor.fetchall()
-            ]
+        dict((cursor.description[idx][0], value)
+             for idx, value in enumerate(row))
+        for row in cursor.fetchall()
+    ]
     cursor.close()
     connection.close()
     return jsonify(users)
@@ -63,7 +65,7 @@ def usuario(cedula):
     return jsonify(user)
 
 
-@app.route("/usuarios_tipo/<string:tipo_usuario>")
+@app.route("/usuarios_tipo/<string:tipo_usuario>", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def usuarios_tipo(tipo_usuario):
     connection = connect_to_db()
@@ -393,10 +395,10 @@ def filtrar_libros_por_categoria():
     )
 
     result = [
-                dict((cursor.description[idx][0], value)
-                    for idx, value in enumerate(row))
-                for row in cursor.fetchall()
-            ]
+        dict((cursor.description[idx][0], value)
+             for idx, value in enumerate(row))
+        for row in cursor.fetchall()
+    ]
 
     cursor.close()
     connection.commit()
@@ -479,6 +481,7 @@ def consultar_editoriales():
         connection.commit()
         connection.close()
 
+
 @app.route("/consultar_ejemplares", methods=["GET"])
 @cross_origin(supports_credentials=True)
 def consultar_ejemplares():
@@ -486,7 +489,8 @@ def consultar_ejemplares():
     cursor = connection.cursor()
 
     try:
-        cursor.execute(f"SELECT l.titulo, l.isbn, STRING_AGG(e.serial_ejemplar, ', ') AS seriales_ejemplares FROM libro l JOIN ejemplar e ON e.isbn = l.isbn GROUP BY l.titulo, l.isbn;")
+        cursor.execute(
+            f"SELECT l.titulo, l.isbn, STRING_AGG(e.serial_ejemplar, ', ') AS seriales_ejemplares FROM libro l JOIN ejemplar e ON e.isbn = l.isbn GROUP BY l.titulo, l.isbn;")
         result = [
             dict((cursor.description[idx][0], value)
                  for idx, value in enumerate(row))
@@ -654,21 +658,23 @@ def consultar_personas_que_mas_donan_libros():
 @app.route("/organizar_evento", methods=["POST"])
 @cross_origin(supports_credentials=True)
 def organizar_evento():
-    connection = connect_to_db()
-    cursor = connection.cursor()
+    try:
+        connection = connect_to_db()
+        cursor = connection.cursor()
 
-    # Obtener los datos desde el body del request
-    data = request.json
+        # Obtener los datos desde el body del request
+        data = request.json
 
-    cursor.execute(
-        f"CALL organizar_evento('{data['in_cedula_bibliotecario']}', '{data['in_nombre_evento']}', '{data['in_fecha_inicio']}', '{data['in_fecha_final']}', '{data['in_nombre_sucursal']}')"
-    )
-
-    cursor.close()
-    connection.commit()
-    connection.close()
-
-    return jsonify({"message": "Evento organizado exitosamente"})
+        cursor.execute(
+            f"CALL organizar_evento('{data['in_cedula_bibliotecario']}', '{data['in_nombre_evento']}', '{data['in_fecha_inicio']}', '{data['in_fecha_final']}', '{data['in_nombre_sucursal']}')"
+        )
+        return jsonify({"message": "Evento organizado exitosamente"})
+    except Exception as e:
+        return jsonify({"message": "Error al organizar el evento" + str(e)}), 500
+    finally:
+        cursor.close()
+        connection.commit()
+        connection.close()
 
 
 @app.route("/consultar_eventos", methods=["GET"])

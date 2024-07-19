@@ -50,9 +50,10 @@ export class EventsComponent implements OnInit {
     {
       label: 'Biliotecario',
       name: 'in_cedula_bibliotecario',
-      type: 'text',
+      type: 'select',
       value: '',
       required: true,
+      options: [],
     },
     {
       label: 'Nombre del evento',
@@ -90,6 +91,7 @@ export class EventsComponent implements OnInit {
   ngOnInit(): void {
     this.getAllEvents();
     this.getAllSucursales();
+    this.getAllLibrarians();
   }
 
   handleTabChange(index: number) {
@@ -184,6 +186,15 @@ export class EventsComponent implements OnInit {
         value: sucursal.nombre,
       }));
       this.registerFields[4].options = sucursalesOptions;
+    });
+  }
+
+  getAllLibrarians() {
+    this.eventsService.getAllLibrarians().subscribe((librarians: any) => {
+      this.registerFields[0].options = librarians.map((librarian: any) => ({
+        label: `${librarian.nombre} ${librarian.apellido}`,
+        value: librarian.cedula,
+      }));
     });
   }
 }
