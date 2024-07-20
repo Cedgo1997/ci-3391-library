@@ -47,13 +47,13 @@ export class ReportsComponent implements OnInit {
         });
         break;
       case 3:
-        this.title = 'Libros más vendidos';
+        this.title = 'Libros más prestados';
         this.reportsService.reporBestBooks().subscribe((data) => {
           this.tableData.set(data);
         });
         break;
       case 4:
-        this.title = 'Libros más prestados';
+        this.title = 'Libros más vendidos';
         this.reportsService.reportMostBorrowedBooks().subscribe((data) => {
           this.tableData.set(data);
         });
