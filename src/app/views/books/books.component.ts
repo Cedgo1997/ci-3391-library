@@ -6,6 +6,7 @@ import { TabsComponent } from '../../components/tabs/tabs.component';
 import { DynamicFormComponent } from '../../components/dynamic-form/dynamic-form.component';
 import { UserService } from '../../services/user.service';
 import { Field } from '../../interfaces/field.interface';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-books',
@@ -41,6 +42,14 @@ export class BooksComponent implements OnInit, OnDestroy {
       type: 'select',
       label: 'Autor ',
       name: 'in_autor',
+      value: '',
+      required: true,
+      options: []
+    },
+    {
+      type: 'select',
+      label: 'Categoría ',
+      name: 'in_categoria',
       value: '',
       required: true,
       options: []
@@ -100,9 +109,11 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   getBooksCategories(): void {
+    const index = this.fields.findIndex((field) => field.name === 'in_categoria');
     this.subscriptions.add(this.bookService.getBookCategories().subscribe(
       categories => {
         this.booksCategories.set(["", ...categories]);
+        this.fields[index].options = categories.map(category => ({ label: category, value: category }))
       }
     ))
   }
@@ -165,14 +176,27 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   addNewBook(bookData: any): void {
-    this.bookService.addBook(bookData).subscribe({
-      next: (response) => {
-        console.info(response);
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    })
+    this.bookService.addBook(bookData).subscribe(
+      {
+        next: (response) => {
+          Swal.fire({
+            title: '¡Libro creado exitosamente!',
+            text: response.message,
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+          });
+          console.info(response);
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un problema inesperado, inténtelo de nuevo más tarde.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+          });
+          console.error(error);
+        }
+      })
   }
 
   ngOnDestroy(): void {
