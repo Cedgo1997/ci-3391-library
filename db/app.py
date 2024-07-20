@@ -198,13 +198,14 @@ def reseñas_sin_aprobar():
     cursor = connection.cursor()
     cursor.execute(f"SELECT * FROM Resena WHERE aprobado = false")
     resenas = [
-            dict((cursor.description[idx][0], value)
-                 for idx, value in enumerate(row))
-            for row in cursor.fetchall()
-        ]
+        dict((cursor.description[idx][0], value)
+             for idx, value in enumerate(row))
+        for row in cursor.fetchall()
+    ]
     cursor.close()
     connection.close()
     return json.dumps(resenas)
+
 
 @app.route("/resenas_aprobadas", methods=["GET"])
 @cross_origin(supports_credentials=True)
@@ -214,10 +215,10 @@ def reseñas_aprobadas():
     cursor = connection.cursor()
     cursor.execute(f"SELECT * FROM Resena WHERE aprobado = true")
     resenas = [
-            dict((cursor.description[idx][0], value)
-                 for idx, value in enumerate(row))
-            for row in cursor.fetchall()
-        ]
+        dict((cursor.description[idx][0], value)
+             for idx, value in enumerate(row))
+        for row in cursor.fetchall()
+    ]
     cursor.close()
     connection.close()
     return json.dumps(resenas)
@@ -337,7 +338,7 @@ def registrar_nuevo_libro():
     data = request.json
 
     cursor.execute(
-        f"CALL registrar_nuevo_libro('{data['in_isbn']}', '{data['in_autor']}', '{data['in_titulo']}', '{data['in_precio']}', '{data['in_edicion']}', '{data['in_fecha_publicacion']}', '{data['in_restriccion_edad']}', '{data['in_nombre_sucursal']}', '{data['in_nombre_editorial']}')"
+        f"CALL registrar_nuevo_libro('{data['in_categoria']}', '{data['in_isbn']}', '{data['in_autor']}', '{data['in_titulo']}', '{data['in_precio']}', '{data['in_edicion']}', '{data['in_fecha_publicacion']}', '{data['in_restriccion_edad']}', '{data['in_nombre_sucursal']}', '{data['in_nombre_editorial']}')"
     )
 
     cursor.close()
